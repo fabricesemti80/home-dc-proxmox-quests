@@ -10,4 +10,4 @@
   become: true
   roles:
     - proxmox_backup_server
-
+    - proxmox_backup_datastore

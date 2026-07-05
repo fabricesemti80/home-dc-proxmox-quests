@@ -15,6 +15,13 @@ module "proxmox_pbs_0" {
   tags             = ["dns", "pbs", "terraform"]
   root_ssh_keys    = var.root_ssh_public_keys
   template_file_id = "local:vztmpl/debian-13-standard_13.1-2_amd64.tar.zst"
+  mount_types      = ["nfs"]
+  mount_points = [
+    {
+      volume = "/mnt/pve/nfs-proxmox-backup/pbs"
+      path   = "/mnt/nfs-proxmox-backup"
+    }
+  ]
 
   cpu_cores   = 2
   memory_mb   = 2048

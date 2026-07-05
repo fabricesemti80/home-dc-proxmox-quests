@@ -1,0 +1,8 @@
+---
+pbs_datastore_name: nfs-proxmox-backup
+pbs_datastore_mount: /mnt/nfs-proxmox-backup
+pbs_datastore_path: "{{ pbs_datastore_mount }}"
+pbs_datastore_mount_strategy: bind
+pbs_datastore_nfs_server: 10.0.40.2
+pbs_datastore_nfs_export: /proxmox-backup
+pbs_datastore_nfs_options: rw,hard,noatime,nofail

@@ -1,0 +1,59 @@
+---
+- name: Install NFS client tools
+  ansible.builtin.apt:
+    name: nfs-common
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  when: pbs_datastore_mount_strategy == "nfs"
+
+- name: Create PBS datastore mount point
+  ansible.builtin.file:
+    path: "{{ pbs_datastore_mount }}"
+    state: directory
+    mode: "0755"
+
+- name: Mount NFS backup storage
+  ansible.posix.mount:
+    path: "{{ pbs_datastore_mount }}"
+    src: "{{ pbs_datastore_nfs_server }}:{{ pbs_datastore_nfs_export }}"
+    fstype: nfs
+    opts: "{{ pbs_datastore_nfs_options }}"
+    state: mounted
+  when: pbs_datastore_mount_strategy == "nfs"
+
+- name: Verify bind-mounted backup storage exists
+  ansible.builtin.command: findmnt {{ pbs_datastore_mount }}
+  changed_when: false
+  when: pbs_datastore_mount_strategy == "bind"
+
+- name: Create PBS datastore path for direct mounts
+  ansible.builtin.file:
+    path: "{{ pbs_datastore_path }}"
+    state: directory
+    owner: backup
+    group: backup
+    mode: "0750"
+  when: pbs_datastore_mount_strategy == "nfs"
+
+- name: Verify bind-mounted PBS datastore path
+  ansible.builtin.file:
+    path: "{{ pbs_datastore_path }}"
+    state: directory
+  when: pbs_datastore_mount_strategy == "bind"
+
+- name: List PBS datastores
+  ansible.builtin.command: proxmox-backup-manager datastore list --output-format json
+  register: pbs_datastore_list
+  changed_when: false
+
+- name: Create PBS datastore
+  ansible.builtin.command: >-
+    proxmox-backup-manager datastore create
+    {{ pbs_datastore_name }}
+    {{ pbs_datastore_path }}
+  when: pbs_datastore_name not in (pbs_datastore_list.stdout | from_json | map(attribute='name') | list)
+
+- name: Show PBS datastore details
+  ansible.builtin.debug:
+    msg: "PBS datastore {{ pbs_datastore_name }} is available at {{ pbs_datastore_path }}."

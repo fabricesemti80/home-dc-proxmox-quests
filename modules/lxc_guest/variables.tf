@@ -65,6 +65,14 @@ variable "mount_types" {
   default = []
 }
 
+variable "mount_points" {
+  type = list(object({
+    volume = string
+    path   = string
+  }))
+  default = []
+}
+
 variable "dns_servers" {
   type    = list(string)
   default = []
