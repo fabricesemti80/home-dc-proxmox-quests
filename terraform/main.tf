@@ -52,7 +52,8 @@ resource "proxmox_virtual_environment_file" "docker_svc_0_guest_agent" {
   datastore_id = "local"
   node_name    = "pve-2"
 
-  source_file {
-    path = "${path.module}/templates/qemu-guest-agent-cloud-init.yml"
+  source_raw {
+    file_name = "qemu-guest-agent-cloud-init.yml"
+    data      = file("${path.module}/templates/qemu-guest-agent-cloud-init.yml")
   }
 }
