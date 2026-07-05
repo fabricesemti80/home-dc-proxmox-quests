@@ -45,12 +45,12 @@ tasks:
 
   ansible:check:
     desc: Check Ansible playbook syntax
-    cmd: ansible-playbook --syntax-check site.yml
+    cmd: sh -lc 'set -a; test ! -f .env || . ./.env; set +a; ansible-playbook --syntax-check site.yml'
     preconditions:
       - which ansible-playbook
 
   ansible:apply:
     desc: Configure Proxmox guests with Ansible
-    cmd: ansible-playbook site.yml
+    cmd: sh -lc 'set -a; test ! -f .env || . ./.env; set +a; ansible-playbook site.yml'
     preconditions:
       - which ansible-playbook

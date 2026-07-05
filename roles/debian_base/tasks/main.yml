@@ -17,6 +17,13 @@
     state: present
   when: guest_kind | default("") == "vm"
 
+- name: Set root password from environment
+  ansible.builtin.user:
+    name: root
+    password: "{{ lookup('ansible.builtin.env', 'ANSI_ROOT_PASSWORD') | password_hash('sha512', 'proxmoxguest') }}"
+  when: lookup('ansible.builtin.env', 'ANSI_ROOT_PASSWORD') | length > 0
+  no_log: true
+
 - name: Set timezone file
   ansible.builtin.copy:
     dest: /etc/timezone
