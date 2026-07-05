@@ -1,0 +1,44 @@
+---
+version: "3"
+
+vars:
+  TERRAFORM_IMAGE: hashicorp/terraform:1.14.8
+  TF_DOCKER: >-
+    docker run --rm
+    -v {{.ROOT_DIR}}:/work
+    -w /work
+    -e TF_VAR_proxmox_endpoint
+    -e TF_VAR_proxmox_insecure
+    -e TF_VAR_proxmox_token_id
+    -e TF_VAR_proxmox_token_secret
+    -e TF_VAR_root_ssh_public_keys
+    {{.TERRAFORM_IMAGE}}
+
+tasks:
+  default:
+    cmd: task --list
+
+  tf:init:
+    desc: Initialize Terraform using the Linux provider runtime
+    cmd: sh -lc 'set -a; test ! -f .env || . ./.env; set +a; {{.TF_DOCKER}} init'
+    preconditions:
+      - which docker
+
+  tf:fmt:
+    desc: Format Terraform files
+    cmd: terraform fmt -recursive
+    preconditions:
+      - which terraform
+
+  tf:plan:
+    desc: Plan Proxmox guest changes
+    cmd: sh -lc 'set -a; test ! -f .env || . ./.env; set +a; {{.TF_DOCKER}} plan -out=tfplan'
+    preconditions:
+      - which docker
+
+  tf:apply:
+    desc: Apply planned Proxmox guest changes
+    cmd: sh -lc 'set -a; test ! -f .env || . ./.env; set +a; {{.TF_DOCKER}} apply tfplan'
+    preconditions:
+      - which docker
+      - test -f tfplan
