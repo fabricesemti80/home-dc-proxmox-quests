@@ -1,64 +1,26 @@
 # Keep Talos VMs in home-dc-kubernetes.
 
-resource "proxmox_virtual_environment_container" "proxmox_pbs_0" {
-  node_name   = "pve-0"
-  vm_id       = 4016
-  description = "Proxmox Backup Server candidate. Managed by Terraform."
-  tags        = ["dns", "pbs", "terraform"]
+moved {
+  from = proxmox_virtual_environment_container.proxmox_pbs_0
+  to   = module.proxmox_pbs_0.proxmox_virtual_environment_container.this
+}
 
-  started      = true
-  unprivileged = true
+module "proxmox_pbs_0" {
+  source = "./modules/lxc_guest"
 
-  cpu {
-    cores = 2
-  }
+  name             = "proxmox-pbs-0"
+  node_name        = "pve-0"
+  vm_id            = 4016
+  description      = "Proxmox Backup Server candidate. Managed by Terraform."
+  tags             = ["dns", "pbs", "terraform"]
+  root_ssh_keys    = var.root_ssh_public_keys
+  template_file_id = "local:vztmpl/debian-13-standard_13.1-2_amd64.tar.zst"
 
-  memory {
-    dedicated = 2048
-    swap      = 512
-  }
-
-  disk {
-    datastore_id = "local"
-    size         = 16
-  }
-
-  features {
-    nesting = true
-  }
-
-  initialization {
-    hostname = "proxmox-pbs-0"
-
-    dns {
-      servers = ["10.0.40.1"]
-    }
-
-    ip_config {
-      ipv4 {
-        address = "10.0.40.16/24"
-        gateway = "10.0.40.1"
-      }
-    }
-
-    user_account {
-      keys = var.root_ssh_public_keys
-    }
-  }
-
-  network_interface {
-    name   = "veth0"
-    bridge = "vmbr0"
-  }
-
-  operating_system {
-    template_file_id = "local:vztmpl/debian-13-standard_13.1-2_amd64.tar.zst"
-    type             = "debian"
-  }
-
-  startup {
-    order      = "2"
-    up_delay   = "30"
-    down_delay = "30"
-  }
+  cpu_cores   = 2
+  memory_mb   = 2048
+  swap_mb     = 512
+  disk_gb     = 16
+  ipv4        = "10.0.40.16/24"
+  gateway     = "10.0.40.1"
+  dns_servers = ["10.0.40.1"]
 }

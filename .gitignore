@@ -1,5 +1,6 @@
 .terraform/
 .ansible/
+modules/*/.terraform.lock.hcl
 .env
 *.tfstate
 *.tfstate.*

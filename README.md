@@ -43,3 +43,12 @@ guest repo has its own project/config.
 
 `proxmox_debian_guests` receives the `debian_base` role. Service-specific
 groups, such as `proxmox_backup_servers`, add narrow roles on top.
+
+## Guest Modules
+
+Use `modules/lxc_guest` for containers and `modules/vm_guest` for VMs. Leave
+`vlan_id` unset for the host native VLAN; set it only for tagged VLANs.
+
+LXC NFS mounts require privileged containers plus `mount_types = ["nfs"]`.
+Changing an existing unprivileged LXC to privileged forces replacement, so PBS
+should move to a VM if it needs to own backup storage directly.
