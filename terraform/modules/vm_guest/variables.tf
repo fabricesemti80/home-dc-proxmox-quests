@@ -42,7 +42,7 @@ variable "memory_mb" {
 
 variable "disk_datastore_id" {
   type    = string
-  default = "local-lvm"
+  default = "localdir"
 }
 
 variable "disk_gb" {
@@ -71,6 +71,11 @@ variable "cloud_init_username" {
 variable "cloud_init_ssh_keys" {
   type    = list(string)
   default = []
+}
+
+variable "cloud_init_user_data_file_id" {
+  type    = string
+  default = null
 }
 
 variable "bridge" {

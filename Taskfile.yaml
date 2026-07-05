@@ -38,10 +38,9 @@ tasks:
 
   tf:apply:
     desc: Apply planned Proxmox guest changes
-    cmd: sh -lc 'set -a; test ! -f .env || . ./.env; set +a; {{.TF_DOCKER}} -chdir=terraform apply tfplan'
+    cmd: sh -lc 'set -a; test ! -f .env || . ./.env; set +a; {{.TF_DOCKER}} -chdir=terraform plan -out=tfplan && {{.TF_DOCKER}} -chdir=terraform apply tfplan'
     preconditions:
       - which docker
-      - test -f terraform/tfplan
 
   ansible:check:
     desc: Check Ansible playbook syntax

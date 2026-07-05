@@ -35,6 +35,8 @@ resource "proxmox_virtual_environment_vm" "this" {
   }
 
   initialization {
+    datastore_id = var.disk_datastore_id
+
     dns {
       servers = var.dns_servers
     }
@@ -53,6 +55,8 @@ resource "proxmox_virtual_environment_vm" "this" {
         username = var.cloud_init_username
       }
     }
+
+    user_data_file_id = var.cloud_init_user_data_file_id
   }
 
   network_device {

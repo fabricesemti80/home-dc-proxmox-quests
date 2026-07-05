@@ -30,13 +30,14 @@ module "proxmox_pbs_0" {
 module "docker_svc_0" {
   source = "./modules/vm_guest"
 
-  name            = "docker-svc-0"
-  node_name       = "pve-2"
-  vm_id           = 4054
-  description     = "Service VM for Tailscale, Technitium, and DockTail. Managed by Terraform."
-  tags            = ["docker", "tailscale", "technitium", "terraform"]
-  clone_vm_id     = 9008
-  clone_node_name = "pve-2"
+  name                         = "docker-svc-0"
+  node_name                    = "pve-2"
+  vm_id                        = 4054
+  description                  = "Service VM for Tailscale, Technitium, and DockTail. Managed by Terraform."
+  tags                         = ["docker", "tailscale", "technitium", "terraform"]
+  clone_vm_id                  = 9008
+  clone_node_name              = "pve-2"
+  cloud_init_user_data_file_id = proxmox_virtual_environment_file.docker_svc_0_guest_agent.id
 
   cpu_cores   = 2
   memory_mb   = 4096
@@ -44,4 +45,14 @@ module "docker_svc_0" {
   ipv4        = "10.0.40.54/24"
   gateway     = "10.0.40.1"
   dns_servers = ["10.0.40.1"]
+}
+
+resource "proxmox_virtual_environment_file" "docker_svc_0_guest_agent" {
+  content_type = "snippets"
+  datastore_id = "local"
+  node_name    = "pve-2"
+
+  source_file {
+    path = "${path.module}/templates/qemu-guest-agent-cloud-init.yml"
+  }
 }
