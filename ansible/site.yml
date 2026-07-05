@@ -11,3 +11,10 @@
   roles:
     - proxmox_backup_server
     - proxmox_backup_datastore
+
+- name: Configure Docker service guests
+  hosts: docker_service_hosts
+  become: true
+  roles:
+    - geerlingguy.docker
+    - docker_service_stack

@@ -1,0 +1,6 @@
+---
+- name: Apply docker service stack
+  ansible.builtin.command:
+    cmd: docker compose up -d --remove-orphans
+    chdir: "{{ docker_service_root }}"
+

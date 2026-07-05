@@ -63,7 +63,12 @@ variable "dns_servers" {
   default = []
 }
 
-variable "root_ssh_keys" {
+variable "cloud_init_username" {
+  type    = string
+  default = null
+}
+
+variable "cloud_init_ssh_keys" {
   type    = list(string)
   default = []
 }

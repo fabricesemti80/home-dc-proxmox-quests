@@ -1,0 +1,48 @@
+---
+- name: Read docker service secrets
+  ansible.builtin.set_fact:
+    docker_service_tailscale_authkey: "{{ lookup('ansible.builtin.env', 'TAILSCALE_AUTHKEY') }}"
+    docker_service_tailscale_oauth_client_id: "{{ lookup('ansible.builtin.env', 'TAILSCALE_OAUTH_CLIENT_ID') }}"
+    docker_service_tailscale_oauth_client_secret: "{{ lookup('ansible.builtin.env', 'TAILSCALE_OAUTH_CLIENT_SECRET') }}"
+    docker_service_technitium_admin_password: "{{ lookup('ansible.builtin.env', 'TECHNITIUM_ADMIN_PASSWORD') }}"
+  no_log: true
+
+- name: Validate docker service secrets
+  ansible.builtin.assert:
+    that:
+      - docker_service_tailscale_authkey | length > 0
+      - docker_service_tailscale_oauth_client_id | length > 0
+      - docker_service_tailscale_oauth_client_secret | length > 0
+      - docker_service_technitium_admin_password | length > 0
+    fail_msg: "Missing one or more docker service secrets in the environment."
+  no_log: true
+
+- name: Create docker service directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ docker_service_root }}"
+    - "{{ docker_service_root }}/data"
+    - "{{ docker_service_root }}/logs"
+    - "{{ docker_service_runtime_dir }}"
+    - "{{ docker_service_state_dir }}"
+    - "{{ docker_service_technitium_data_dir }}"
+    - "{{ docker_service_technitium_log_dir }}"
+
+- name: Render docker service environment
+  ansible.builtin.template:
+    src: docker.env.j2
+    dest: "{{ docker_service_env_file }}"
+    mode: "0600"
+  notify: Apply docker service stack
+  no_log: true
+
+- name: Render docker compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ docker_service_compose_file }}"
+    mode: "0644"
+  notify: Apply docker service stack
+

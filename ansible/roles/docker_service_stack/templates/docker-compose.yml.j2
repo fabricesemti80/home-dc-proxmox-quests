@@ -1,0 +1,72 @@
+services:
+  tailscale:
+    image: tailscale/tailscale:stable
+    container_name: {{ docker_service_name }}-tailscale
+    hostname: {{ docker_service_name }}
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      net.ipv4.ip_forward: "1"
+      net.ipv6.conf.all.forwarding: "1"
+    env_file:
+      - .env
+    environment:
+      TS_AUTHKEY: ${TS_AUTHKEY}
+      TS_HOSTNAME: {{ docker_service_name }}
+      TS_STATE_DIR: /var/lib/tailscale
+      TS_SOCKET: /var/run/tailscale/tailscaled.sock
+      TS_USERSPACE: "false"
+      TS_ACCEPT_DNS: "false"
+      TS_AUTH_ONCE: "true"
+      TS_EXTRA_ARGS: --advertise-exit-node
+    volumes:
+      - "{{ docker_service_state_dir }}:/var/lib/tailscale"
+      - "{{ docker_service_runtime_dir }}:/var/run/tailscale"
+
+  technitium:
+    image: docker.io/technitium/dns-server:latest
+    container_name: {{ docker_service_name }}-technitium
+    hostname: dns-server
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DNS_SERVER_DOMAIN: dns-server
+      DNS_SERVER_ADMIN_PASSWORD: ${TECHNITIUM_ADMIN_PASSWORD}
+      DNS_SERVER_WEB_SERVICE_LOCAL_ADDRESSES: 0.0.0.0
+      DNS_SERVER_WEB_SERVICE_HTTP_PORT: 5380
+      DNS_SERVER_WEB_SERVICE_ENABLE_HTTPS: "false"
+      DNS_SERVER_LOG_FOLDER_PATH: /var/log/technitium/dns
+    ports:
+      - "5380:5380/tcp"
+      - "53:53/udp"
+      - "53:53/tcp"
+    volumes:
+      - "{{ docker_service_technitium_data_dir }}:/etc/dns"
+      - "{{ docker_service_technitium_log_dir }}:/var/log/technitium/dns"
+    labels:
+      docktail.service.enable: "true"
+      docktail.service.name: technitium
+      docktail.service.port: "5380"
+      docktail.service.protocol: http
+
+  docktail:
+    image: ghcr.io/marvinvr/docktail:latest
+    container_name: {{ docker_service_name }}-docktail
+    restart: unless-stopped
+    depends_on:
+      - tailscale
+    env_file:
+      - .env
+    environment:
+      TAILSCALE_OAUTH_CLIENT_ID: ${TAILSCALE_OAUTH_CLIENT_ID}
+      TAILSCALE_OAUTH_CLIENT_SECRET: ${TAILSCALE_OAUTH_CLIENT_SECRET}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - "{{ docker_service_runtime_dir }}:/var/run/tailscale"
+

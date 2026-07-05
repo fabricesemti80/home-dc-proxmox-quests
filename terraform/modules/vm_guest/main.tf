@@ -46,9 +46,12 @@ resource "proxmox_virtual_environment_vm" "this" {
       }
     }
 
-    user_account {
-      keys     = var.root_ssh_keys
-      username = "root"
+    dynamic "user_account" {
+      for_each = var.cloud_init_username == null || length(var.cloud_init_ssh_keys) == 0 ? [] : [1]
+      content {
+        keys     = var.cloud_init_ssh_keys
+        username = var.cloud_init_username
+      }
     }
   }
 
