@@ -1,0 +1,28 @@
+---
+- name: Install Proxmox Backup Server repository key
+  ansible.builtin.get_url:
+    url: https://enterprise.proxmox.com/debian/proxmox-release-trixie.gpg
+    dest: /etc/apt/trusted.gpg.d/proxmox-release-trixie.gpg
+    mode: "0644"
+
+- name: Configure Proxmox Backup Server no-subscription repository
+  ansible.builtin.copy:
+    dest: /etc/apt/sources.list.d/pbs-no-subscription.list
+    mode: "0644"
+    content: |
+      deb http://download.proxmox.com/debian/pbs trixie pbs-no-subscription
+
+- name: Install Proxmox Backup Server
+  ansible.builtin.apt:
+    name: proxmox-backup-server
+    state: present
+    update_cache: true
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+    IFUPDOWN2_NO_IFRELOAD: "1"
+
+- name: Start Proxmox Backup Server proxy
+  ansible.builtin.service:
+    name: proxmox-backup-proxy
+    state: started
+    enabled: true

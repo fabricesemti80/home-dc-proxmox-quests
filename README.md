@@ -32,8 +32,14 @@ multiple repeated environments.
 task tf:init
 task tf:plan
 task tf:apply
+task ansible:apply
 ```
 
 Create `.env` from `.env.example`. For now this repo reads local
 `TF_VAR_proxmox_*` exports from `.env`; move those values into Doppler once this
 guest repo has its own project/config.
+
+## Ansible
+
+`proxmox_debian_guests` receives the `debian_base` role. Service-specific
+groups, such as `proxmox_backup_servers`, add narrow roles on top.

@@ -1,0 +1,13 @@
+---
+- name: Configure Debian Proxmox guests
+  hosts: proxmox_debian_guests
+  become: true
+  roles:
+    - debian_base
+
+- name: Configure Proxmox Backup Server guests
+  hosts: proxmox_backup_servers
+  become: true
+  roles:
+    - proxmox_backup_server
+

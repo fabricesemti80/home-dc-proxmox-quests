@@ -1,0 +1,46 @@
+---
+- name: Install Debian base packages
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - sudo
+      - vim
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install VM guest agent
+  ansible.builtin.apt:
+    name: qemu-guest-agent
+    state: present
+  when: guest_kind | default("") == "vm"
+
+- name: Set timezone file
+  ansible.builtin.copy:
+    dest: /etc/timezone
+    mode: "0644"
+    content: "{{ debian_base_timezone | default('Europe/London') }}\n"
+
+- name: Link localtime
+  ansible.builtin.file:
+    src: "/usr/share/zoneinfo/{{ debian_base_timezone | default('Europe/London') }}"
+    dest: /etc/localtime
+    state: link
+    force: true
+
+- name: Create journald config directory
+  ansible.builtin.file:
+    path: /etc/systemd/journald.conf.d
+    state: directory
+    mode: "0755"
+
+- name: Limit journal disk usage
+  ansible.builtin.copy:
+    dest: /etc/systemd/journald.conf.d/limits.conf
+    mode: "0644"
+    content: |
+      [Journal]
+      SystemMaxUse={{ debian_base_journal_system_max_use | default('512M') }}
+      RuntimeMaxUse={{ debian_base_journal_runtime_max_use | default('128M') }}
