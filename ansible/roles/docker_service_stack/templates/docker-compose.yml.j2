@@ -10,9 +10,6 @@ services:
       - NET_RAW
     devices:
       - /dev/net/tun:/dev/net/tun
-    sysctls:
-      net.ipv4.ip_forward: "1"
-      net.ipv6.conf.all.forwarding: "1"
     env_file:
       - .env
     environment:
@@ -23,7 +20,11 @@ services:
       TS_USERSPACE: "false"
       TS_ACCEPT_DNS: "false"
       TS_AUTH_ONCE: "true"
-      TS_EXTRA_ARGS: --advertise-exit-node
+      TS_EXTRA_ARGS: >-
+        --advertise-exit-node
+        --advertise-tags=tag:server
+        {% if docker_service_tailscale_ssh %}--ssh{% endif %}
+        --advertise-routes={{ docker_service_tailscale_advertise_routes | join(',') }}
     volumes:
       - "{{ docker_service_state_dir }}:/var/lib/tailscale"
       - "{{ docker_service_runtime_dir }}:/var/run/tailscale"
@@ -33,6 +34,7 @@ services:
     container_name: {{ docker_service_name }}-technitium
     hostname: dns-server
     restart: unless-stopped
+    network_mode: host
     env_file:
       - .env
     environment:
@@ -42,10 +44,6 @@ services:
       DNS_SERVER_WEB_SERVICE_HTTP_PORT: 5380
       DNS_SERVER_WEB_SERVICE_ENABLE_HTTPS: "false"
       DNS_SERVER_LOG_FOLDER_PATH: /var/log/technitium/dns
-    ports:
-      - "5380:5380/tcp"
-      - "53:53/udp"
-      - "53:53/tcp"
     volumes:
       - "{{ docker_service_technitium_data_dir }}:/etc/dns"
       - "{{ docker_service_technitium_log_dir }}:/var/log/technitium/dns"
@@ -69,4 +67,3 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - "{{ docker_service_runtime_dir }}:/var/run/tailscale"
-

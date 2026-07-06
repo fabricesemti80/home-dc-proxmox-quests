@@ -31,12 +31,23 @@
     - "{{ docker_service_technitium_data_dir }}"
     - "{{ docker_service_technitium_log_dir }}"
 
+- name: Enable host packet forwarding
+  ansible.builtin.copy:
+    dest: /etc/sysctl.d/99-docker-service-stack.conf
+    mode: "0644"
+    content: |
+      net.ipv4.ip_forward = 1
+      net.ipv6.conf.all.forwarding = 1
+  notify: Reload host sysctl
+
 - name: Render docker service environment
   ansible.builtin.template:
     src: docker.env.j2
     dest: "{{ docker_service_env_file }}"
     mode: "0600"
-  notify: Apply docker service stack
+  notify:
+    - Reset tailscale state
+    - Apply docker service stack
   no_log: true
 
 - name: Render docker compose file
@@ -44,5 +55,6 @@
     src: docker-compose.yml.j2
     dest: "{{ docker_service_compose_file }}"
     mode: "0644"
-  notify: Apply docker service stack
-
+  notify:
+    - Reset tailscale state
+    - Apply docker service stack

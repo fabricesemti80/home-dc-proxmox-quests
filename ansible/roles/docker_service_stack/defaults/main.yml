@@ -8,3 +8,8 @@ docker_service_state_dir: "{{ docker_service_root }}/state/tailscale"
 docker_service_technitium_data_dir: "{{ docker_service_root }}/data/technitium"
 docker_service_technitium_log_dir: "{{ docker_service_root }}/logs/technitium"
 
+docker_service_tailscale_ssh: true
+docker_service_tailscale_advertise_routes:
+  - "10.0.0.0/16"
+  - "192.168.0.0/16"
+

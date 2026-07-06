@@ -12,6 +12,8 @@ vars:
     -e TF_VAR_proxmox_username
     -e TF_VAR_proxmox_password
     -e TF_VAR_root_ssh_public_keys
+    -e TF_VAR_tailscale_oauth_client_id
+    -e TF_VAR_tailscale_oauth_client_secret
     {{.TERRAFORM_IMAGE}}
 
 tasks:

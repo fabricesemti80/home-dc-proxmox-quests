@@ -1,6 +1,14 @@
 ---
+- name: Reload host sysctl
+  ansible.builtin.command:
+    cmd: sysctl --system
+
+- name: Reset tailscale state
+  ansible.builtin.file:
+    path: "{{ docker_service_state_dir }}"
+    state: absent
+
 - name: Apply docker service stack
   ansible.builtin.command:
     cmd: docker compose up -d --remove-orphans
     chdir: "{{ docker_service_root }}"
-
