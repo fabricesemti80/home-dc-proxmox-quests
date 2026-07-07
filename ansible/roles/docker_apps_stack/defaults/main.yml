@@ -1,0 +1,9 @@
+---
+docker_apps_name: docker-apps
+docker_apps_root: /opt/{{ docker_apps_name }}
+docker_apps_compose_file: "{{ docker_apps_root }}/docker-compose.yml"
+docker_apps_env_file: "{{ docker_apps_root }}/.env"
+docker_apps_secrets_dir: "{{ docker_apps_root }}/runtime/secrets"
+docker_apps_network_name: homelab_proxy
+
+docker_apps_portainer_hostname: portainer.koala-dominant.ts.net

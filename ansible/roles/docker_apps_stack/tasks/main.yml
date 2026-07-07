@@ -1,0 +1,56 @@
+---
+- name: Read docker apps secrets
+  ansible.builtin.set_fact:
+    docker_apps_portainer_admin_password: "{{ lookup('ansible.builtin.env', 'PORTAINER_ADMIN_PASSWORD') }}"
+  no_log: true
+
+- name: Validate docker apps secrets
+  ansible.builtin.assert:
+    that:
+      - docker_apps_portainer_admin_password | length > 0
+    fail_msg: "Missing docker apps secrets in the environment."
+  no_log: true
+
+- name: Create docker apps directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ docker_apps_root }}"
+    - "{{ docker_apps_secrets_dir }}/portainer"
+
+- name: Check docker apps proxy network
+  ansible.builtin.command:
+    cmd: "docker network inspect {{ docker_apps_network_name }}"
+  register: docker_network_check
+  failed_when: docker_network_check.rc not in [0, 1]
+  changed_when: false
+
+- name: Create docker apps proxy network
+  ansible.builtin.command:
+    cmd: "docker network create {{ docker_apps_network_name }}"
+  when: docker_network_check.rc == 1
+
+- name: Render docker apps environment
+  ansible.builtin.template:
+    src: docker.env.j2
+    dest: "{{ docker_apps_env_file }}"
+    mode: "0600"
+  notify: Apply docker apps stack
+  no_log: true
+
+- name: Render docker apps compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ docker_apps_compose_file }}"
+    mode: "0644"
+  notify: Apply docker apps stack
+
+- name: Render portainer admin password secret
+  ansible.builtin.copy:
+    dest: "{{ docker_apps_secrets_dir }}/portainer/admin_password"
+    content: "{{ docker_apps_portainer_admin_password }}"
+    mode: "0600"
+  notify: Apply docker apps stack
+  no_log: true

@@ -35,6 +35,11 @@ variable "cpu_cores" {
   default = 2
 }
 
+variable "cpu_sockets" {
+  type    = number
+  default = 1
+}
+
 variable "memory_mb" {
   type    = number
   default = 2048

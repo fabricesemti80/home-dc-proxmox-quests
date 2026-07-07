@@ -39,9 +39,10 @@ module "docker_svc_0" {
   clone_node_name              = "pve-2"
   cloud_init_user_data_file_id = proxmox_virtual_environment_file.docker_svc_0_guest_agent.id
 
-  cpu_cores   = 2
-  memory_mb   = 4096
-  disk_gb     = 32
+  cpu_cores     = 2
+  cpu_sockets   = 2
+  memory_mb     = 6144
+  disk_gb       = 32
   ipv4        = "10.0.40.54/24"
   gateway     = "10.0.40.1"
   dns_servers = ["10.0.40.1"]

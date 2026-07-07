@@ -18,3 +18,4 @@
   roles:
     - geerlingguy.docker
     - docker_service_stack
+    - docker_apps_stack

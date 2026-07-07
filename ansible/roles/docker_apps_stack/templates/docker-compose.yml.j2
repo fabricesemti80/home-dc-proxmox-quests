@@ -1,0 +1,33 @@
+name: {{ docker_apps_name }}
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    platform: ${HOMELAB_DOCKER_PLATFORM:-linux/amd64}
+    container_name: portainer
+    command:
+      - --admin-password-file
+      - /run/secrets/portainer_admin_password
+      - --trusted-origins
+      - ${PORTAINER_HOSTNAME:-portainer.koala-dominant.ts.net}
+    restart: unless-stopped
+    networks:
+      - proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - docker_apps_portainer_data:/data
+      - {{ docker_apps_secrets_dir }}/portainer/admin_password:/run/secrets/portainer_admin_password:ro
+    labels:
+      docktail.service.enable: "true"
+      docktail.service.name: portainer
+      docktail.service.port: "9000"
+      docktail.service.protocol: http
+
+networks:
+  proxy:
+    name: {{ docker_apps_network_name }}
+    external: true
+
+volumes:
+  docker_apps_portainer_data:
+    name: docker_apps_portainer_data
