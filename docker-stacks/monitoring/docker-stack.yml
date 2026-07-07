@@ -1,0 +1,27 @@
+name: monitoring
+
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3001"
+    networks:
+      - homelab_proxy
+    volumes:
+      - docker_apps_uptime_kuma_data:/app/data
+    labels:
+      docktail.service.enable: "true"
+      docktail.service.name: uptime-kuma
+      docktail.service.port: "3001"
+      docktail.service.service-port: "443"
+      docktail.service.protocol: http
+
+volumes:
+  docker_apps_uptime_kuma_data:
+    name: docker_apps_uptime_kuma_data
+
+networks:
+  homelab_proxy:
+    external: true

@@ -1,7 +1,6 @@
 name: docker-apps
 
-# Migrated apps from the old docker_apps_stack Ansible role.
-# Add services here and deploy to the docker-svc-0 endpoint.
+# Miscellaneous apps that do not fit into core/monitoring/networking yet.
 
 services:
   whoami:
@@ -11,33 +10,14 @@ services:
     ports:
       - "127.0.0.1:8080:80"
     networks:
-      - proxy
+      - homelab_proxy
     labels:
       docktail.service.enable: "true"
       docktail.service.name: whoami
-      docktail.service.port: "8080"
-      docktail.service.protocol: http
-
-  uptime-kuma:
-    image: louislam/uptime-kuma:latest
-    container_name: uptime-kuma
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:3001:3001"
-    networks:
-      - proxy
-    volumes:
-      - docker_apps_uptime_kuma_data:/app/data
-    labels:
-      docktail.service.enable: "true"
-      docktail.service.name: uptime-kuma
-      docktail.service.port: "3001"
+      docktail.service.port: "80"
+      docktail.service.service-port: "443"
       docktail.service.protocol: http
 
 networks:
-  proxy:
-    name: homelab_proxy
-
-volumes:
-  docker_apps_uptime_kuma_data:
-    name: docker_apps_uptime_kuma_data
+  homelab_proxy:
+    external: true

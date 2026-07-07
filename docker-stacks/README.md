@@ -2,13 +2,30 @@
 
 Portainer-managed Docker Compose stacks for standalone Docker hosts.
 
-Each subfolder contains a `docker-stack.yml` and an `.env.example`. Secrets are sourced from 1Password and injected by Portainer environment variables.
+## Layout
 
-## Endpoints
+| Stack | Purpose | Endpoint |
+|---|---|---|
+| `core` | Docktail (Tailscale service proxy) | `docker-svc-0` |
+| `monitoring` | Uptime-Kuma (Beszel later) | `docker-svc-0` |
+| `networking` | Technitium DNS | mini PC |
+| `docker-apps` | Misc apps (`whoami`) | `docker-svc-0` |
 
-- `docker-svc-0` (Proxmox VM): Portainer server, general apps.
-- `mini-pc-0` (bare metal): Portainer agent, Technitium DNS.
+All app stacks attach to the `homelab_proxy` bridge network created by the `core` stack (Ansible ensures it exists before stacks deploy).
+
+## HTTPS
+
+App labels expose services via Docktail as native Tailscale Services on port 443 with automatic Tailscale HTTPS certificates, e.g.:
+
+```yaml
+labels:
+  docktail.service.enable: "true"
+  docktail.service.name: whoami
+  docktail.service.port: "80"
+  docktail.service.service-port: "443"
+  docktail.service.protocol: http
+```
 
 ## Deployment
 
-Stacks are deployed through the Portainer UI or GitOps. Ansible only bootstraps Portainer and the Docker hosts; it does not manage these stacks.
+Stacks are deployed through Portainer GitOps from this repo. Ansible only bootstraps Docker, Tailscale, and Portainer.
