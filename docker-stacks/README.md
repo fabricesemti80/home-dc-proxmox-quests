@@ -4,16 +4,16 @@ Portainer-managed Docker Compose stack for standalone Docker hosts.
 
 ## Layout
 
-A single `docker-stacks/docker-compose.yml` uses Docker Compose `include` to pull in:
+A single `docker-stacks/docker-compose.yml` deploys everything. Subfolders hold per-stack documentation and `.env.example` files for required secrets.
 
-| Include | Purpose | Endpoint |
+| Area | Services | Endpoint |
 |---|---|---|
 | `core` | Docktail (Tailscale service proxy) | `docker-svc-0` |
 | `monitoring` | Uptime-Kuma (Beszel later) | `docker-svc-0` |
 | `networking` | Technitium DNS | mini PC |
 | `docker-apps` | Misc apps (`whoami`) | `docker-svc-0` |
 
-All app stacks attach to the `homelab_proxy` bridge network (Ansible ensures it exists before the stack deploys).
+All services attach to the `homelab_proxy` bridge network (Ansible ensures it exists before the stack deploys).
 
 ## HTTPS
 

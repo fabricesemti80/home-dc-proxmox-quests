@@ -1,11 +1,88 @@
 name: homelab
 
-include:
-  - core/docker-compose.yml
-  - monitoring/docker-compose.yml
-  - networking/docker-compose.yml
-  - docker-apps/docker-compose.yml
+services:
+  docktail:
+    image: ghcr.io/marvinvr/docktail:latest
+    container_name: docktail
+    restart: unless-stopped
+    networks:
+      - homelab_proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/tailscale:/var/run/tailscale
+    environment:
+      TAILSCALE_OAUTH_CLIENT_ID: ${TAILSCALE_OAUTH_CLIENT_ID}
+      TAILSCALE_OAUTH_CLIENT_SECRET: ${TAILSCALE_OAUTH_CLIENT_SECRET}
+
+  whoami:
+    image: traefik/whoami:latest
+    container_name: whoami
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    networks:
+      - homelab_proxy
+    labels:
+      docktail.service.enable: "true"
+      docktail.service.name: whoami
+      docktail.service.port: "80"
+      docktail.service.service-port: "443"
+      docktail.service.protocol: http
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3001"
+    networks:
+      - homelab_proxy
+    volumes:
+      - docker_apps_uptime_kuma_data:/app/data
+    labels:
+      docktail.service.enable: "true"
+      docktail.service.name: uptime-kuma
+      docktail.service.port: "3001"
+      docktail.service.service-port: "443"
+      docktail.service.protocol: http
+
+  technitium:
+    image: docker.io/technitium/dns-server:latest
+    container_name: technitium
+    hostname: dns-server
+    restart: unless-stopped
+    networks:
+      - homelab_proxy
+    ports:
+      - target: 53
+        published: 53
+        protocol: tcp
+        mode: host
+      - target: 53
+        published: 53
+        protocol: udp
+        mode: host
+    environment:
+      DNS_SERVER_DOMAIN: dns-server
+      DNS_SERVER_ADMIN_PASSWORD: ${TECHNITIUM_ADMIN_PASSWORD}
+      DNS_SERVER_WEB_SERVICE_LOCAL_ADDRESSES: 0.0.0.0
+      DNS_SERVER_WEB_SERVICE_HTTP_PORT: "5380"
+      DNS_SERVER_WEB_SERVICE_ENABLE_HTTPS: "false"
+    volumes:
+      - technitium_data:/etc/dns
+    labels:
+      docktail.service.enable: "true"
+      docktail.service.name: technitium
+      docktail.service.port: "5380"
+      docktail.service.service-port: "443"
+      docktail.service.protocol: http
 
 networks:
   homelab_proxy:
-    external: true
+    name: homelab_proxy
+
+volumes:
+  docker_apps_uptime_kuma_data:
+    name: docker_apps_uptime_kuma_data
+  technitium_data:
+    name: technitium_data
