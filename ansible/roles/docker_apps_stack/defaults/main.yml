@@ -7,3 +7,4 @@ docker_apps_secrets_dir: "{{ docker_apps_root }}/runtime/secrets"
 docker_apps_network_name: homelab_proxy
 
 docker_apps_portainer_hostname: portainer.koala-dominant.ts.net
+docker_apps_uptime_kuma_hostname: uptime-kuma.koala-dominant.ts.net

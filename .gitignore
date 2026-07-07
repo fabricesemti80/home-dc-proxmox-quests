@@ -8,3 +8,6 @@ terraform/*.tfstate.*
 terraform/tfplan*
 *.auto.tfvars
 !guests.auto.tfvars.example
+MIGRATION_PLAN.md
+ansible/roles/geerlingguy.docker/
+

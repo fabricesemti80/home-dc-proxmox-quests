@@ -23,6 +23,23 @@ services:
       docktail.service.port: "9000"
       docktail.service.protocol: http
 
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    platform: ${HOMELAB_DOCKER_PLATFORM:-linux/amd64}
+    container_name: uptime-kuma
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3001"
+    networks:
+      - proxy
+    volumes:
+      - docker_apps_uptime_kuma_data:/app/data
+    labels:
+      docktail.service.enable: "true"
+      docktail.service.name: uptime-kuma
+      docktail.service.port: "3001"
+      docktail.service.protocol: http
+
 networks:
   proxy:
     name: {{ docker_apps_network_name }}
@@ -31,3 +48,5 @@ networks:
 volumes:
   docker_apps_portainer_data:
     name: docker_apps_portainer_data
+  docker_apps_uptime_kuma_data:
+    name: docker_apps_uptime_kuma_data

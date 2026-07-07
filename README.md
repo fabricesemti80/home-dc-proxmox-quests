@@ -45,6 +45,9 @@ because privileged LXC feature flags are rejected through API tokens.
 `proxmox_debian_guests` receives the `debian_base` role. Service-specific
 groups, such as `proxmox_backup_servers`, add narrow roles on top.
 
+`docker_standalone_hosts` receives Docker, host-level Tailscale, and Portainer
+bootstrap. Portainer manages application stacks from `docker-stacks/`.
+
 ## Guest Modules
 
 Use `modules/lxc_guest` for containers and `modules/vm_guest` for VMs. Leave

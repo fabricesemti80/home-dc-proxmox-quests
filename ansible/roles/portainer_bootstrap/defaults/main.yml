@@ -1,0 +1,14 @@
+---
+portainer_edition: "{{ 'ee' if lookup('ansible.builtin.env', 'PORTAINER_BE_LICENSE') | length > 0 else 'ce' }}"
+portainer_tag: "latest"
+portainer_admin_password: "{{ lookup('ansible.builtin.env', 'PORTAINER_ADMIN_PASSWORD') }}"
+portainer_hostname: "portainer.koala-dominant.ts.net"
+
+portainer_http_port: 9000
+portainer_https_port: 9443
+portainer_edge_port: 8000
+portainer_agent_port: 9001
+
+portainer_root: /opt/portainer
+portainer_data_dir: "{{ portainer_root }}/data"
+portainer_secrets_dir: "{{ portainer_root }}/secrets"

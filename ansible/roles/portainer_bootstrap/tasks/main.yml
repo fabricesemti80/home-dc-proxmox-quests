@@ -1,0 +1,41 @@
+---
+- name: Validate Portainer admin password
+  ansible.builtin.assert:
+    that:
+      - portainer_admin_password | length > 0
+    fail_msg: "PORTAINER_ADMIN_PASSWORD is required for portainer_bootstrap role."
+  no_log: true
+
+- name: Set Portainer node facts
+  ansible.builtin.set_fact:
+    portainer_is_server: "{{ inventory_hostname in groups['portainer_server_hosts'] }}"
+    portainer_is_agent: "{{ inventory_hostname in groups['portainer_agent_hosts'] }}"
+
+- name: Create Portainer directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ portainer_root }}"
+    - "{{ portainer_data_dir }}"
+    - "{{ portainer_secrets_dir }}"
+
+- name: Render Portainer admin password secret
+  ansible.builtin.copy:
+    dest: "{{ portainer_secrets_dir }}/admin_password"
+    content: "{{ portainer_admin_password }}"
+    mode: "0600"
+  no_log: true
+  when: portainer_is_server | bool
+
+- name: Render Portainer compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ portainer_root }}/docker-compose.yml"
+    mode: "0644"
+
+- name: Deploy Portainer
+  ansible.builtin.command:
+    cmd: docker compose up -d --remove-orphans
+    chdir: "{{ portainer_root }}"

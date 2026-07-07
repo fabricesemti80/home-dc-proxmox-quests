@@ -1,0 +1,17 @@
+name: docker-apps
+
+# Migrated apps from the old docker_apps_stack Ansible role.
+# Add services here and deploy to the docker-svc-0 endpoint.
+
+services:
+  whoami:
+    image: traefik/whoami:latest
+    container_name: whoami
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    labels:
+      docktail.service.enable: "true"
+      docktail.service.name: whoami
+      docktail.service.port: "8080"
+      docktail.service.protocol: http

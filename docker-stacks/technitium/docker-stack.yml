@@ -1,0 +1,20 @@
+name: technitium
+
+services:
+  technitium:
+    image: docker.io/technitium/dns-server:latest
+    container_name: technitium
+    hostname: dns-server
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      DNS_SERVER_DOMAIN: dns-server
+      DNS_SERVER_ADMIN_PASSWORD: ${TECHNITIUM_ADMIN_PASSWORD}
+      DNS_SERVER_WEB_SERVICE_LOCAL_ADDRESSES: 0.0.0.0
+      DNS_SERVER_WEB_SERVICE_HTTP_PORT: "5380"
+      DNS_SERVER_WEB_SERVICE_ENABLE_HTTPS: "false"
+    volumes:
+      - technitium_data:/etc/dns
+
+volumes:
+  technitium_data:

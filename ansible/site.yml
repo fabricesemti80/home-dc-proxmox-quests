@@ -12,10 +12,10 @@
     - proxmox_backup_server
     - proxmox_backup_datastore
 
-- name: Configure Docker service guests
-  hosts: docker_service_hosts
+- name: Configure Docker standalone hosts
+  hosts: docker_standalone_hosts
   become: true
   roles:
     - geerlingguy.docker
-    - docker_service_stack
-    - docker_apps_stack
+    - tailscale_host
+    - portainer_bootstrap

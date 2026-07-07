@@ -1,4 +1,5 @@
 #cloud-config
+locale: en_US.UTF-8
 package_update: true
 packages:
   - qemu-guest-agent
