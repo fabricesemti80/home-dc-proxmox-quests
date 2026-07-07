@@ -1,0 +1,6 @@
+---
+disable_systemd_resolved_nameservers:
+  - "1.1.1.1"
+  - "10.0.40.1"
+disable_systemd_resolved_search_domains:
+  - "koala-dominant.ts.net"

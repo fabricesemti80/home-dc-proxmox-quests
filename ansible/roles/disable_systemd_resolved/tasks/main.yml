@@ -1,0 +1,33 @@
+---
+- name: Check if systemd-resolved is installed
+  ansible.builtin.command: systemctl is-enabled systemd-resolved
+  register: systemd_resolved_status
+  changed_when: false
+  failed_when: systemd_resolved_status.rc not in [0, 1]
+
+- name: Stop, disable and mask systemd-resolved
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    state: stopped
+    enabled: false
+    masked: true
+  when: systemd_resolved_status.rc == 0
+
+- name: Remove systemd-resolved stub resolv.conf
+  ansible.builtin.file:
+    path: /etc/resolv.conf
+    state: absent
+  when: systemd_resolved_status.rc == 0
+
+- name: Write static resolv.conf
+  ansible.builtin.copy:
+    dest: /etc/resolv.conf
+    mode: "0644"
+    content: |
+      {% for ns in disable_systemd_resolved_nameservers %}
+      nameserver {{ ns }}
+      {% endfor %}
+      {% if disable_systemd_resolved_search_domains | length > 0 %}
+      search {{ disable_systemd_resolved_search_domains | join(' ') }}
+      {% endif %}
+  when: systemd_resolved_status.rc == 0

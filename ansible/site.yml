@@ -19,3 +19,4 @@
     - geerlingguy.docker
     - tailscale_host
     - portainer_bootstrap
+    - disable_systemd_resolved
