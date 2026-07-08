@@ -72,7 +72,7 @@ services:
       - technitium_data:/etc/dns
     labels:
       docktail.service.enable: "true"
-      docktail.service.name: technitium
+      docktail.service.name: technitium-0
       docktail.service.port: "5380"
       docktail.service.service-port: "443"
       docktail.service.protocol: http
