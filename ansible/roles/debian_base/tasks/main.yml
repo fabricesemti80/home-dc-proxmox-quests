@@ -72,3 +72,31 @@
       [Journal]
       SystemMaxUse={{ debian_base_journal_system_max_use | default('512M') }}
       RuntimeMaxUse={{ debian_base_journal_runtime_max_use | default('128M') }}
+
+- name: Mask suspend targets
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    masked: true
+  loop:
+    - systemd-suspend.service
+    - systemd-hibernate.service
+    - systemd-hybrid-sleep.service
+    - sleep.target
+    - suspend.target
+    - hibernate.target
+    - hybrid-sleep.target
+  when: debian_base_disable_suspend | default(true) | bool
+
+- name: Configure logind to ignore power and lid events
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/logind.conf
+    regexp: "^{{ item.key }}="
+    line: "{{ item.key }}={{ item.value }}"
+  loop:
+    - { key: "HandlePowerKey", value: "ignore" }
+    - { key: "HandleLidSwitch", value: "ignore" }
+    - { key: "HandleLidSwitchExternalPower", value: "ignore" }
+    - { key: "HandleLidSwitchDocked", value: "ignore" }
+    - { key: "IdleAction", value: "ignore" }
+  when: debian_base_disable_suspend | default(true) | bool
+  notify: Restart systemd-logind
