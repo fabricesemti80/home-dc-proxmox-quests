@@ -48,3 +48,73 @@
 - name: Apply Tailscale settings
   ansible.builtin.command: "tailscale up {{ tailscale_up_args }}"
   no_log: true
+
+- name: Install Tailscale services advertise script
+  ansible.builtin.copy:
+    dest: /usr/local/bin/advertise-tailscale-services
+    mode: "0755"
+    content: |
+      #!/usr/bin/env python3
+      import json
+      import subprocess
+      import sys
+
+      def main():
+          try:
+              out = subprocess.check_output(
+                  ["/usr/bin/tailscale", "serve", "status", "--json"],
+                  stderr=subprocess.DEVNULL,
+              )
+              data = json.loads(out)
+          except Exception:
+              sys.exit(0)
+
+          for svc in data.get("Services", {}).keys():
+              subprocess.call(
+                  ["/usr/bin/tailscale", "serve", "advertise", svc],
+                  stdout=subprocess.DEVNULL,
+                  stderr=subprocess.DEVNULL,
+              )
+
+      if __name__ == "__main__":
+          main()
+
+- name: Install systemd service to advertise Tailscale services
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/advertise-tailscale-services.service
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Advertise Tailscale services
+      After=tailscaled.service
+
+      [Service]
+      Type=oneshot
+      ExecStart=/usr/local/bin/advertise-tailscale-services
+
+- name: Install systemd timer to advertise Tailscale services
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/advertise-tailscale-services.timer
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Advertise Tailscale services periodically
+
+      [Timer]
+      OnBootSec=60
+      OnUnitActiveSec=5m
+      Persistent=true
+
+      [Install]
+      WantedBy=timers.target
+
+- name: Reload systemd daemon and enable timer
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: advertise-tailscale-services.timer
+    state: started
+    enabled: true
+
+- name: Advertise existing Tailscale services now
+  ansible.builtin.command: /usr/local/bin/advertise-tailscale-services
+  changed_when: true
