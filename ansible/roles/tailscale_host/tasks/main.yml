@@ -37,6 +37,7 @@
   ansible.builtin.set_fact:
     tailscale_up_args: >-
       --authkey={{ tailscale_authkey }}
+      --reset
       {{ '--ssh' if tailscale_ssh else '' }}
       {{ '--accept-dns=false' if not tailscale_accept_dns else '' }}
       {{ '--accept-routes' if tailscale_accept_routes else '' }}
@@ -59,10 +60,12 @@
       import subprocess
       import sys
 
+      TAILSCALE = ["/usr/bin/tailscale", "--socket=/var/run/tailscale/tailscaled.sock"]
+
       def main():
           try:
               out = subprocess.check_output(
-                  ["/usr/bin/tailscale", "serve", "status", "--json"],
+                  TAILSCALE + ["serve", "status", "--json"],
                   stderr=subprocess.DEVNULL,
               )
               data = json.loads(out)
@@ -71,7 +74,7 @@
 
           for svc in data.get("Services", {}).keys():
               subprocess.call(
-                  ["/usr/bin/tailscale", "serve", "advertise", svc],
+                  TAILSCALE + ["serve", "advertise", svc],
                   stdout=subprocess.DEVNULL,
                   stderr=subprocess.DEVNULL,
               )

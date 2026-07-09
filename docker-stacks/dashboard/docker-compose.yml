@@ -12,11 +12,15 @@ services:
       - ./config:/app/config
     labels:
       docktail.service.enable: "true"
-      docktail.service.name: dash
+      docktail.service.name: start
       docktail.service.port: "3000"
       docktail.service.service-port: "443"
       docktail.service.protocol: http
       homepage.group: Dashboard
       homepage.name: Homelab Dash
       homepage.icon: homepage
-      homepage.href: https://dash.koala-dominant.ts.net
+      homepage.href: https://start.koala-dominant.ts.net
+
+networks:
+  homelab_proxy:
+    external: true

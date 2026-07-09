@@ -35,11 +35,6 @@
     dest: "{{ portainer_root }}/docker-compose.yml"
     mode: "0644"
 
-- name: Deploy Portainer
-  ansible.builtin.command:
-    cmd: docker compose up -d --remove-orphans
-    chdir: "{{ portainer_root }}"
-
 - name: Ensure homelab_proxy Docker network exists
   ansible.builtin.command:
     cmd: docker network inspect homelab_proxy
@@ -51,3 +46,8 @@
   ansible.builtin.command:
     cmd: docker network create homelab_proxy
   when: homelab_proxy_network_check.rc == 1
+
+- name: Deploy Portainer
+  ansible.builtin.command:
+    cmd: docker compose up -d --remove-orphans
+    chdir: "{{ portainer_root }}"

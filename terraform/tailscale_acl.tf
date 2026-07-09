@@ -1,6 +1,6 @@
 resource "tailscale_acl" "this" {
   overwrite_existing_content = true
-  acl                        = jsonencode({
+  acl = jsonencode({
     autoApprovers = {
       services = {
         "tag:container" = ["tag:server"]
