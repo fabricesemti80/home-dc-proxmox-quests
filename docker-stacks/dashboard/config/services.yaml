@@ -1,0 +1,20 @@
+---
+- Homelab:
+    - Portainer:
+        icon: portainer
+        href: https://portainer.koala-dominant.ts.net
+    - Uptime Kuma:
+        icon: uptime-kuma
+        href: https://uptime-kuma.koala-dominant.ts.net
+    - Vaultwarden:
+        icon: vaultwarden
+        href: https://vaultwarden.koala-dominant.ts.net
+    - Beszel:
+        icon: beszel
+        href: https://beszel.koala-dominant.ts.net
+    - Technitium:
+        icon: technitium
+        href: https://technitium-0.koala-dominant.ts.net
+    - Whoami:
+        icon: mdi-test-tube
+        href: https://whoami.koala-dominant.ts.net

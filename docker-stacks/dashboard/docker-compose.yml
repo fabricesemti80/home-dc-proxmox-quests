@@ -5,6 +5,8 @@ services:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
     restart: unless-stopped
+    environment:
+      HOMEPAGE_ALLOWED_HOSTS: start.koala-dominant.ts.net
     networks:
       - homelab_proxy
     volumes:
