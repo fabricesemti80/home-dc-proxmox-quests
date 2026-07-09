@@ -67,3 +67,7 @@ volumes:
     name: docker_apps_beszel_agent_data
   beszel_socket:
     name: docker_apps_beszel_socket
+
+networks:
+  homelab_proxy:
+    external: true

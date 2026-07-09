@@ -1,19 +1,23 @@
 # Docker stacks
 
-Portainer-managed Docker Compose stack for standalone Docker hosts.
+Portainer-managed Docker Compose stacks for standalone Docker hosts.
 
 ## Layout
 
-A single `docker-stacks/docker-compose.yml` deploys everything. Subfolders hold per-stack documentation and `.env.example` files for required secrets.
+Each compose file is a separate Portainer GitOps stack. Required variables live
+in the repo root `.env` and are listed in `.env.example`.
 
 | Area | Services | Endpoint |
 |---|---|---|
-| `core` | Docktail (Tailscale service proxy) | `docker-svc-0` |
-| `monitoring` | Uptime-Kuma (Beszel later) | `docker-svc-0` |
-| `networking` | Technitium DNS | mini PC |
-| `docker-apps` | Misc apps (`whoami`) | `docker-svc-0` |
+| `docker-compose.yml` | Docktail, Whoami, Uptime Kuma, Technitium | Docker hosts |
+| `apps/docker-compose.yml` | Vaultwarden, Beszel, Beszel agent | `docker-svc-0` |
+| `dashboard/docker-compose.yml` | Homepage | `docker-svc-0` |
+| `networking/docker-compose.yml` | Docktail, Technitium | networking hosts |
 
 All services attach to the `homelab_proxy` bridge network (Ansible ensures it exists before the stack deploys).
+
+Beszel agent requires `BESZEL_AGENT_KEY`; without it the container exits with
+`no key provided`.
 
 ## HTTPS
 
@@ -30,4 +34,5 @@ labels:
 
 ## Deployment
 
-Portainer GitOps pulls `docker-stacks/docker-compose.yml` from this repo. Ansible only bootstraps Docker, Tailscale, and Portainer.
+Portainer GitOps pulls these compose files from this repo. Ansible only
+bootstraps Docker, Tailscale, and Portainer.
