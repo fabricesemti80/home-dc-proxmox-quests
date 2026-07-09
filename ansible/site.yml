@@ -1,5 +1,5 @@
 ---
-- name: Configure Debian Proxmox guests
+- name: Configure Debian service hosts
   hosts: proxmox_debian_guests
   become: true
   roles:

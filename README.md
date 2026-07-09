@@ -1,6 +1,6 @@
-# home-dc-proxmox-quests
+# home-dc-service-hosts
 
-Standalone Proxmox guest lifecycle for the home DC.
+Standalone service host lifecycle for the home DC.
 
 ## Ownership
 
@@ -9,7 +9,7 @@ platform and not part of the Talos/Kubernetes cluster.
 
 - `home-dc-proxmox`: Proxmox hosts, Ceph, storage, templates, pools, API tokens, backup policy.
 - `home-dc-kubernetes`: Talos VMs and Kubernetes lifecycle.
-- `home-dc-proxmox-quests`: standalone utility guests such as Technitium DNS.
+- `home-dc-service-hosts`: standalone service hosts such as Docker nodes, PBS, and Technitium DNS.
 
 ## Tooling
 
