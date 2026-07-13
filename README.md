@@ -26,6 +26,8 @@ be expressed cleanly as Proxmox resources.
 Terragrunt is intentionally skipped for now. Add it only if this grows into
 multiple repeated environments.
 
+Tailscale ACLs, split DNS, MagicDNS preferences, and search paths are managed here in Terraform.
+
 ## Workflow
 
 ```sh

@@ -21,6 +21,7 @@ services:
       docktail.service.enable: "true"
       docktail.service.name: portainer
       docktail.service.port: "9000"
+      docktail.service.service-port: "443"
       docktail.service.protocol: http
 
   uptime-kuma:
@@ -38,6 +39,7 @@ services:
       docktail.service.enable: "true"
       docktail.service.name: uptime-kuma
       docktail.service.port: "3001"
+      docktail.service.service-port: "443"
       docktail.service.protocol: http
 
 networks:

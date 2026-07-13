@@ -1,49 +1,32 @@
----
 version: "3"
-
-vars:
-  TERRAFORM_IMAGE: hashicorp/terraform:1.15.7
-  TF_DOCKER: >-
-    docker run --rm
-    -v {{.ROOT_DIR}}:/work
-    -w /work
-    -e TF_VAR_proxmox_endpoint
-    -e TF_VAR_proxmox_insecure
-    -e TF_VAR_proxmox_username
-    -e TF_VAR_proxmox_password
-    -e TF_VAR_root_ssh_public_keys
-    -e TF_VAR_tailscale_oauth_client_id
-    -e TF_VAR_tailscale_oauth_client_secret
-    -e TF_VAR_tailscale_tailnet
-    {{.TERRAFORM_IMAGE}}
 
 tasks:
   default:
     cmd: task --list
 
   tf:init:
-    desc: Initialize Terraform using the Linux provider runtime
-    cmd: sh -lc 'set -a; test ! -f .env || . ./.env; set +a; {{.TF_DOCKER}} -chdir=terraform init'
+    desc: Initialize OpenTofu for the service-hosts stack
+    cmd: sh -lc 'set -a; test ! -f .env || . ./.env; set +a; tofu -chdir=terraform init'
     preconditions:
-      - which docker
+      - which tofu
 
   tf:fmt:
-    desc: Format Terraform files
-    cmd: terraform fmt -recursive terraform
+    desc: Format Terraform/OpenTofu files
+    cmd: tofu fmt -recursive terraform
     preconditions:
-      - which terraform
+      - which tofu
 
   tf:plan:
     desc: Plan service host changes
-    cmd: sh -lc 'set -a; test ! -f .env || . ./.env; set +a; {{.TF_DOCKER}} -chdir=terraform plan -out=tfplan'
+    cmd: sh -lc 'set -a; test ! -f .env || . ./.env; set +a; tofu -chdir=terraform plan -out=tfplan'
     preconditions:
-      - which docker
+      - which tofu
 
   tf:apply:
     desc: Apply planned service host changes
-    cmd: sh -lc 'set -a; test ! -f .env || . ./.env; set +a; {{.TF_DOCKER}} -chdir=terraform plan -out=tfplan && {{.TF_DOCKER}} -chdir=terraform apply tfplan'
+    cmd: sh -lc 'set -a; test ! -f .env || . ./.env; set +a; tofu -chdir=terraform plan -out=tfplan && tofu -chdir=terraform apply tfplan'
     preconditions:
-      - which docker
+      - which tofu
 
   ansible:check:
     desc: Check Ansible playbook syntax
