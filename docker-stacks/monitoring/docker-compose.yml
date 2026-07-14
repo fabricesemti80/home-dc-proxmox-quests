@@ -5,8 +5,6 @@ services:
     image: rcourtman/pulse:latest
     container_name: pulse
     restart: always
-    ports:
-      - "8080:8080"
     volumes:
       - ./data:/app/data
     environment:
