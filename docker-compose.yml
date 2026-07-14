@@ -2,3 +2,4 @@ include:
   - docker-stacks/docker-compose.yml
   - docker-stacks/apps/docker-compose.yml
   - docker-stacks/dashboard/docker-compose.yml
+  - docker-stacks/monitoring/docker-compose.yml
