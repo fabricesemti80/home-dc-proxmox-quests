@@ -202,11 +202,16 @@ networks:
 volumes:
   docker_apps_uptime_kuma_data:
     name: docker_apps_uptime_kuma_data
+    external: true
   technitium_data:
     name: technitium_data
+    external: true
   vaultwarden_data:
     name: docker_apps_vaultwarden_data
+    external: true
   beszel_data:
     name: docker_apps_beszel_data
+    external: true
   beszel_agent_data:
     name: docker_apps_beszel_agent_data
+    external: true
