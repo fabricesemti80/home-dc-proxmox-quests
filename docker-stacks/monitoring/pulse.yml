@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  pulse:
+    image: rcourtman/pulse:latest
+    container_name: pulse
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - TZ=Europe/London
+      - NODE_NAME=${HOSTNAME:-pulse-server}
+    networks:
+      - monitoring-net
+      - homelab_proxy
+    labels:
+      docktail.service.enable: "true"
+      docktail.service.name: pulse
+      docktail.service.port: "8080"
+      docktail.service.service-port: "443"
+      docktail.service.protocol: http
+      homepage.group: Monitoring
+      homepage.name: Pulse
+      homepage.icon: mdi-pulse
+      homepage.href: https://pulse.koala-dominant.ts.net
+
+networks:
+  monitoring-net:
+    driver: bridge
+  homelab_proxy:
+    external: true
