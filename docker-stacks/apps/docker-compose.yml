@@ -1,36 +1,4 @@
 services:
-  vaultwarden:
-    image: vaultwarden/server:latest
-    networks:
-      - homelab_proxy_swarm
-    environment:
-      DOMAIN: ${VAULTWARDEN_APP_URL:-https://vaultwarden.koala-dominant.ts.net}
-      ADMIN_TOKEN: ${VAULTWARDEN_ADMIN_TOKEN}
-    volumes:
-      - vaultwarden_data:/data
-    ports:
-      - target: 80
-        published: 18080
-        protocol: tcp
-        mode: host
-    deploy:
-      placement:
-        constraints:
-          - node.hostname == docker-svc-1
-      restart_policy:
-        condition: any
-    labels:
-      docktail.service.enable: "true"
-      docktail.service.direct: "false"
-      docktail.service.name: vaultwarden
-      docktail.service.port: "80"
-      docktail.service.service-port: "443"
-      docktail.service.protocol: http
-      homepage.group: Apps
-      homepage.name: Vaultwarden
-      homepage.icon: bitwarden
-      homepage.href: https://vaultwarden.koala-dominant.ts.net
-
   beszel:
     image: henrygd/beszel:latest
     networks:
@@ -137,9 +105,6 @@ services:
       homepage.href: https://whoami.koala-dominant.ts.net
 
 volumes:
-  vaultwarden_data:
-    name: docker_apps_vaultwarden_data
-    external: true
   beszel_data:
     name: docker_apps_beszel_data
     external: true

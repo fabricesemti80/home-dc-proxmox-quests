@@ -6,7 +6,6 @@ locals {
     start          = "Homepage dashboard"
     "technitium-0" = "Technitium primary"
     "uptime-kuma"  = "Uptime Kuma"
-    vaultwarden    = "Vaultwarden"
     whoami         = "Whoami"
   }
 }

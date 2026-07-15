@@ -9,7 +9,7 @@ in the repo root `.env` and are listed in `.env.example`.
 
 | Area | Services | Endpoint |
 |---|---|---|
-| `apps/docker-compose.yml` | Vaultwarden, Beszel, Uptime Kuma, Whoami, Beszel agent | Swarm; apps pinned to `docker-svc-1`, agent global |
+| `apps/docker-compose.yml` | Beszel, Uptime Kuma, Whoami, Beszel agent | Swarm; apps pinned to `docker-svc-1`, agent global |
 | `dashboard/docker-compose.yml` | Homepage | Swarm; pinned to `docker-svc-1` |
 | `networking/docker-compose.yml` | Docktail, Technitium primary/secondary | Swarm; Docktail global, DNS pinned per host |
 | `monitoring/docker-compose.yml` | Pulse | Swarm manager, constrained to `docker-svc-1` |
