@@ -39,10 +39,10 @@ networks:
 
 configs:
   homepage_settings:
-    file: ./config/settings.yaml
+    file: docker-stacks/dashboard/config/settings.yaml
   homepage_docker:
-    file: ./config/docker.yaml
+    file: docker-stacks/dashboard/config/docker.yaml
   homepage_bookmarks:
-    file: ./config/bookmarks.yaml
+    file: docker-stacks/dashboard/config/bookmarks.yaml
   homepage_services:
-    file: ./config/services.yaml
+    file: docker-stacks/dashboard/config/services.yaml
