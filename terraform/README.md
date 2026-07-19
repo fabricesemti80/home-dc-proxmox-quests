@@ -18,6 +18,7 @@ Fix applied:
 - granted it `DatastoreAdmin` on `/datastore/proxmox-pbs-datastore`
 - changed PVE storage `pbs-proxmox-backup` username to `root@pam!pve-storage`
 - kept the existing Proxmox storage password file as the token secret
+- changed existing PBS backup group owners to `root@pam!pve-storage`
 
 Validation:
 
@@ -25,3 +26,12 @@ Validation:
 - PBS CPU dropped back to normal; no hot `unix_chkpwd` process remained
 
 If this regresses, check `/etc/pve/storage.cfg` before tuning PBS resources.
+
+If backups fail with `backup owner check failed`, check group ownership with:
+
+```sh
+PBS_PASSWORD_FILE=/etc/pve/priv/storage/pbs-proxmox-backup.pw \
+PBS_FINGERPRINT=<storage fingerprint> \
+proxmox-backup-client list \
+  --repository root@pam!pve-storage@10.0.40.16:proxmox-pbs-datastore
+```

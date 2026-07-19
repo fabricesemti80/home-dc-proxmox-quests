@@ -1,0 +1,130 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: kestra
+      POSTGRES_USER: kestra
+      POSTGRES_PASSWORD: ${KESTRA_POSTGRES_PASSWORD}
+    volumes:
+      - kestra_postgres_data:/var/lib/postgresql/data
+    networks:
+      default:
+        aliases:
+          - postgres
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == docker-svc-1
+      restart_policy:
+        condition: any
+
+  kestra:
+    image: kestra/kestra:latest
+    entrypoint: /bin/sh
+    user: root
+    command:
+      - -c
+      - |
+        command -v ssh >/dev/null || (apt-get update && apt-get install -y --no-install-recommends openssh-client bash && rm -rf /var/lib/apt/lists/*)
+        until bash -c '</dev/tcp/postgres/5432' >/dev/null 2>&1; do sleep 2; done
+        exec /app/kestra server standalone
+    networks:
+      - homelab_proxy_swarm
+      - default
+    ports:
+      - target: 8080
+        published: 18080
+        protocol: tcp
+        mode: host
+    environment:
+      KESTRA_BASIC_AUTH_USERNAME: ${KESTRA_BASIC_AUTH_USERNAME}
+      KESTRA_BASIC_AUTH_PASSWORD: ${KESTRA_BASIC_AUTH_PASSWORD}
+      KESTRA_CONFIGURATION: |
+        datasources:
+          postgres:
+            url: jdbc:postgresql://postgres:5432/kestra
+            driver-class-name: org.postgresql.Driver
+            username: kestra
+            password: ${KESTRA_POSTGRES_PASSWORD}
+        kestra:
+          server:
+            basic-auth:
+              username: ${KESTRA_BASIC_AUTH_USERNAME}
+              password: ${KESTRA_BASIC_AUTH_PASSWORD}
+          repository:
+            type: postgres
+          queue:
+            type: postgres
+          storage:
+            type: local
+            local:
+              base-path: /app/storage
+          tasks:
+            tmp-dir:
+              path: /tmp/kestra-wd
+          url: https://${KESTRA_HOSTNAME}
+      HOMELAB_SSH_KEY: /run/secrets/homelab_ssh_key
+      HOMELAB_PVE_HOSTS: ${HOMELAB_PVE_HOSTS:-pve-0 pve-1 pve-2}
+      HOMELAB_PVE_SHUTDOWN_ORDER: ${HOMELAB_PVE_SHUTDOWN_ORDER:-pve-2 pve-1 pve-0}
+      HOMELAB_PBS_HOST: ${HOMELAB_PBS_HOST:-proxmox-pbs-0}
+      HOMELAB_K8S_VMS: ${HOMELAB_K8S_VMS:-4090@pve-0 4091@pve-1 4092@pve-2}
+      HOMELAB_SERVICE_GUESTS: ${HOMELAB_SERVICE_GUESTS:-3050@pve-0 3051@pve-1 4054@pve-2 4016@pve-0}
+      KESTRA_FLOW_GIT_URL: ${KESTRA_FLOW_GIT_URL:-https://github.com/fabricesemti80/home-kestra.git}
+      KESTRA_FLOW_GIT_BRANCH: ${KESTRA_FLOW_GIT_BRANCH:-main}
+      KESTRA_FLOW_GIT_PATH: ${KESTRA_FLOW_GIT_PATH:-flows}
+      KESTRA_FLOW_NAMESPACE: ${KESTRA_FLOW_NAMESPACE:-homelab.ops}
+    volumes:
+      - kestra_storage:/app/storage
+      - kestra_tmp:/tmp/kestra-wd
+      - ${KESTRA_SSH_PRIVATE_KEY_PATH:-/srv/docker/gitops/secrets/homelab_ssh_key}:/run/secrets/homelab_ssh_key:ro
+      - ./scripts:/opt/kestra/homelab/scripts:ro
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == docker-svc-1
+      restart_policy:
+        condition: any
+    labels:
+      docktail.service.enable: "true"
+      docktail.service.direct: "false"
+      docktail.service.name: kestra
+      docktail.service.port: "8080"
+      docktail.service.service-port: "443"
+      docktail.service.protocol: http
+      homepage.group: GitOps
+      homepage.name: Kestra
+      homepage.icon: kestra
+      homepage.href: https://${KESTRA_HOSTNAME}
+
+  kestra-bootstrap:
+    image: kestra/kestra:latest
+    entrypoint: /bin/sh
+    user: root
+    command:
+      - -c
+      - |
+        until /app/kestra flow validate /opt/kestra/homelab/flows --server http://kestra:8080 --user "${KESTRA_BASIC_AUTH_USERNAME}:${KESTRA_BASIC_AUTH_PASSWORD}"; do sleep 5; done
+        /app/kestra flow namespace update homelab.ops /opt/kestra/homelab/flows --no-delete --server http://kestra:8080 --user "${KESTRA_BASIC_AUTH_USERNAME}:${KESTRA_BASIC_AUTH_PASSWORD}"
+    environment:
+      KESTRA_BASIC_AUTH_USERNAME: ${KESTRA_BASIC_AUTH_USERNAME}
+      KESTRA_BASIC_AUTH_PASSWORD: ${KESTRA_BASIC_AUTH_PASSWORD}
+    volumes:
+      - ./flows:/opt/kestra/homelab/flows:ro
+    deploy:
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.hostname == docker-svc-1
+
+networks:
+  homelab_proxy_swarm:
+    external: true
+
+volumes:
+  kestra_postgres_data:
+    name: gitops_kestra_postgres_data
+  kestra_storage:
+    name: gitops_kestra_storage
+  kestra_tmp:
+    name: gitops_kestra_tmp

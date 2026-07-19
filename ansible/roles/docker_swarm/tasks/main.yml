@@ -10,6 +10,36 @@
   ansible.builtin.set_fact:
     docker_swarm_manager_host: "{{ groups['docker_swarm_managers'][0] }}"
 
+- name: Ensure containerd root exists
+  ansible.builtin.file:
+    path: "{{ containerd_root }}"
+    state: directory
+    mode: "0711"
+  when: containerd_root is defined
+
+- name: Configure containerd root
+  ansible.builtin.copy:
+    dest: /etc/containerd/config.toml
+    mode: "0644"
+    content: |
+      disabled_plugins = ["cri"]
+      root = "{{ containerd_root }}"
+      state = "/run/containerd"
+  register: containerd_config
+  when: containerd_root is defined
+
+- name: Restart containerd for root change
+  ansible.builtin.service:
+    name: containerd
+    state: restarted
+  when: containerd_config.changed | default(false)
+
+- name: Restart docker for containerd root change
+  ansible.builtin.service:
+    name: docker
+    state: restarted
+  when: containerd_config.changed | default(false)
+
 - name: Check local swarm state
   ansible.builtin.command: docker info --format '{{ "{{.Swarm.LocalNodeState}}" }} {{ "{{.Swarm.ControlAvailable}}" }}'
   register: docker_swarm_state

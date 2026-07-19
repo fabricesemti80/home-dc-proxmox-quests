@@ -33,3 +33,6 @@ rm -f /tmp/pulse-install.sh /tmp/pulse-token
 
 Add `--disable-host` only when Pulse should monitor Docker containers without
 also enrolling the underlying Docker host.
+
+Docker host offline alerts are disabled in Pulse. The host agent already covers
+host availability, while Docker container and service monitoring stays enabled.
