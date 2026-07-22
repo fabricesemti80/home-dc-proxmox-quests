@@ -1,0 +1,42 @@
+---
+- name: Create Komodo directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ komodo_root }}"
+    - "{{ komodo_root }}/backups"
+    - "{{ komodo_root }}/mongo-data"
+    - "{{ komodo_root }}/mongo-config"
+    - "{{ komodo_config_root }}"
+
+- name: Validate Komodo environment secrets
+  ansible.builtin.assert:
+    that:
+      - lookup('ansible.builtin.env', 'KOMODO_DATABASE_PASSWORD') | length > 0
+      - lookup('ansible.builtin.env', 'KOMODO_INIT_ADMIN_PASSWORD') | length > 0
+      - lookup('ansible.builtin.env', 'KOMODO_WEBHOOK_SECRET') | length > 0
+      - lookup('ansible.builtin.env', 'KOMODO_JWT_SECRET') | length > 0
+    fail_msg: "KOMODO_DATABASE_PASSWORD, KOMODO_INIT_ADMIN_PASSWORD, KOMODO_WEBHOOK_SECRET, and KOMODO_JWT_SECRET are required."
+  no_log: true
+
+- name: Render Komodo env file
+  ansible.builtin.template:
+    src: compose.env.j2
+    dest: "{{ komodo_root }}/compose.env"
+    mode: "0600"
+  no_log: true
+
+- name: Render Komodo compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ komodo_root }}/docker-compose.yml"
+    mode: "0644"
+
+- name: Deploy Komodo
+  ansible.builtin.command:
+    cmd: docker compose --env-file compose.env up -d --remove-orphans
+    chdir: "{{ komodo_root }}"
+  register: komodo_compose_up
+  changed_when: "'Started' in komodo_compose_up.stdout or 'Created' in komodo_compose_up.stdout or 'Recreated' in komodo_compose_up.stdout or 'Running' in komodo_compose_up.stdout"

@@ -1,0 +1,57 @@
+name: komodo
+
+services:
+  mongo:
+    image: mongo
+    command: --quiet --wiredTigerCacheSizeGB 0.25
+    restart: unless-stopped
+    volumes:
+      - {{ komodo_root }}/mongo-data:/data/db
+      - {{ komodo_root }}/mongo-config:/data/configdb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${KOMODO_DATABASE_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${KOMODO_DATABASE_PASSWORD}
+    labels:
+      komodo.skip: ""
+
+  core:
+    image: ghcr.io/moghtech/komodo-core:${COMPOSE_KOMODO_IMAGE_TAG:-2}
+    init: true
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    ports:
+      - "{{ komodo_port }}:9120"
+    env_file: ./compose.env
+    environment:
+      KOMODO_DATABASE_ADDRESS: mongo:27017
+    volumes:
+      - keys:/config/keys
+      - {{ komodo_root }}/backups:/backups
+    labels:
+      docktail.service.enable: "true"
+      docktail.service.direct: "false"
+      docktail.service.name: komodo
+      docktail.service.port: "{{ komodo_port }}"
+      docktail.service.service-port: "443"
+      docktail.service.protocol: http
+      homepage.group: Infrastructure
+      homepage.name: Komodo
+      homepage.icon: mdi-lizard
+      homepage.href: https://{{ komodo_hostname }}
+
+  periphery:
+    image: ghcr.io/moghtech/komodo-periphery:${COMPOSE_KOMODO_IMAGE_TAG:-2}
+    init: true
+    restart: unless-stopped
+    depends_on:
+      - core
+    env_file: ./compose.env
+    volumes:
+      - keys:/config/keys
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /proc:/proc
+      - {{ komodo_config_root }}:{{ komodo_config_root }}
+
+volumes:
+  keys:

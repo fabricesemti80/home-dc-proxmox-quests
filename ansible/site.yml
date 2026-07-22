@@ -54,14 +54,20 @@
     - disable_systemd_resolved
     - tailscale_host
 
-# - name: Configure Docker swarm
-#   hosts: docker_swarm
-#   become: true
-#   roles:
-#     - docker_swarm
+- name: Configure Docker swarm
+  hosts: docker_swarm
+  become: true
+  roles:
+    - docker_swarm
 
-# - name: Bootstrap Portainer
-#   hosts: docker_standalone_hosts
-#   become: true
-#   roles:
-#     - portainer_bootstrap
+- name: Bootstrap Portainer
+  hosts: docker_standalone_hosts
+  become: true
+  roles:
+    - portainer_bootstrap
+
+- name: Deploy Komodo
+  hosts: komodo_hosts
+  become: true
+  roles:
+    - komodo

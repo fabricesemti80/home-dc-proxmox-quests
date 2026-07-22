@@ -1,0 +1,11 @@
+---
+komodo_root: /opt/komodo
+komodo_config_root: /etc/komodo
+komodo_hostname: komodo.koala-dominant.ts.net
+komodo_port: 9120
+komodo_image_tag: "2"
+komodo_title: Komodo
+komodo_timezone: Europe/London
+komodo_database_username: admin
+komodo_initial_admin_username: admin
+komodo_disable_user_registration: true

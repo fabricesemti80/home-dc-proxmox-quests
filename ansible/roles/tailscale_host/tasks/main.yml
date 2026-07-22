@@ -48,6 +48,9 @@
 
 - name: Apply Tailscale settings
   ansible.builtin.command: "tailscale up {{ tailscale_up_args }}"
+  register: tailscale_up
+  failed_when: false
+  changed_when: tailscale_up.rc == 0
   no_log: true
 
 - name: Install Tailscale services advertise script
