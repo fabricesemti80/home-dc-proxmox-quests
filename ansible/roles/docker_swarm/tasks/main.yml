@@ -89,6 +89,35 @@
     recurse: true
   when: monitoring_stack_host | default(false)
 
+- name: Ensure development stack directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ development_stack_root }}"
+    - "{{ development_stack_root }}/scripts"
+    - "{{ development_stack_root }}/flows"
+    - "{{ development_stack_root }}/secrets"
+    - "{{ development_stack_root }}/kestra/postgres"
+    - "{{ development_stack_root }}/kestra/storage"
+    - "{{ development_stack_root }}/kestra/tmp"
+  when: development_stack_host | default(false)
+
+- name: Copy Kestra scripts to development host
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../docker-stacks/development/scripts/"
+    dest: "{{ development_stack_root }}/scripts/"
+    mode: preserve
+  when: development_stack_host | default(false)
+
+- name: Copy Kestra flows to development host
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../docker-stacks/development/flows/"
+    dest: "{{ development_stack_root }}/flows/"
+    mode: preserve
+  when: development_stack_host | default(false)
+
 - name: Check local swarm state
   ansible.builtin.command: docker info --format '{{ "{{.Swarm.LocalNodeState}}" }} {{ "{{.Swarm.ControlAvailable}}" }}'
   register: docker_swarm_state

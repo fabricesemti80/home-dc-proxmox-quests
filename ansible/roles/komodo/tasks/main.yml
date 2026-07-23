@@ -248,6 +248,49 @@
     - komodo_monitoring_stack_host is defined
   no_log: true
 
+- name: Set development stack host
+  ansible.builtin.set_fact:
+    komodo_development_stack_host: "{{ item }}"
+  loop: "{{ groups['docker_swarm'] }}"
+  when: hostvars[item].development_stack_host | default(false)
+
+- name: Create Komodo development hostname variable
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ komodo_port }}/write/CreateVariable"
+    method: POST
+    body_format: json
+    body:
+      name: DEVELOPMENT_HOSTNAME
+      value: "{{ komodo_development_stack_host }}"
+      description: "Ansible-managed Swarm hostname for development stacks."
+      is_secret: false
+    headers:
+      X-Api-Key: "{{ lookup('ansible.builtin.env', 'KOMODO_API_KEY') }}"
+      X-Api-Secret: "{{ lookup('ansible.builtin.env', 'KOMODO_API_SECRET') }}"
+    status_code: 200
+  when:
+    - not ansible_check_mode
+    - komodo_development_stack_host is defined
+    - "'DEVELOPMENT_HOSTNAME' not in (komodo_variables.json | map(attribute='name') | list)"
+  no_log: true
+
+- name: Update Komodo development hostname variable
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ komodo_port }}/write/UpdateVariableValue"
+    method: POST
+    body_format: json
+    body:
+      name: DEVELOPMENT_HOSTNAME
+      value: "{{ komodo_development_stack_host }}"
+    headers:
+      X-Api-Key: "{{ lookup('ansible.builtin.env', 'KOMODO_API_KEY') }}"
+      X-Api-Secret: "{{ lookup('ansible.builtin.env', 'KOMODO_API_SECRET') }}"
+    status_code: 200
+  when:
+    - not ansible_check_mode
+    - komodo_development_stack_host is defined
+  no_log: true
+
 - name: Refresh Komodo resource sync
   ansible.builtin.uri:
     url: "http://127.0.0.1:{{ komodo_port }}/write/RefreshResourceSyncPending"

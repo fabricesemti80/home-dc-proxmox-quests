@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: kestra
       POSTGRES_PASSWORD: ${KESTRA_POSTGRES_PASSWORD}
     volumes:
-      - kestra_postgres_data:/var/lib/postgresql/data
+      - /srv/docker/development/kestra/postgres:/var/lib/postgresql/data
     networks:
       default:
         aliases:
@@ -14,7 +14,7 @@ services:
     deploy:
       placement:
         constraints:
-          - node.hostname == sentinel-1
+          - node.hostname == ${DEVELOPMENT_HOSTNAME}
       restart_policy:
         condition: any
 
@@ -74,14 +74,14 @@ services:
       KESTRA_FLOW_GIT_PATH: ${KESTRA_FLOW_GIT_PATH:-flows}
       KESTRA_FLOW_NAMESPACE: ${KESTRA_FLOW_NAMESPACE:-homelab.ops}
     volumes:
-      - kestra_storage:/app/storage
-      - kestra_tmp:/tmp/kestra-wd
-      - ${KESTRA_SSH_PRIVATE_KEY_PATH:-/srv/docker/gitops/secrets/homelab_ssh_key}:/run/secrets/homelab_ssh_key:ro
-      - ./scripts:/opt/kestra/homelab/scripts:ro
+      - /srv/docker/development/kestra/storage:/app/storage
+      - /srv/docker/development/kestra/tmp:/tmp/kestra-wd
+      - ${KESTRA_SSH_PRIVATE_KEY_PATH:-/srv/docker/development/secrets/homelab_ssh_key}:/run/secrets/homelab_ssh_key:ro
+      - /srv/docker/development/scripts:/opt/kestra/homelab/scripts:ro
     deploy:
       placement:
         constraints:
-          - node.hostname == sentinel-1
+          - node.hostname == ${DEVELOPMENT_HOSTNAME}
       restart_policy:
         condition: any
     labels:
@@ -103,28 +103,21 @@ services:
     command:
       - -c
       - |
-        until /app/kestra flow validate /opt/kestra/homelab/flows --server http://kestra:8080 --user "${KESTRA_BASIC_AUTH_USERNAME}:${KESTRA_BASIC_AUTH_PASSWORD}"; do sleep 5; done
-        /app/kestra flow namespace update homelab.ops /opt/kestra/homelab/flows --no-delete --server http://kestra:8080 --user "${KESTRA_BASIC_AUTH_USERNAME}:${KESTRA_BASIC_AUTH_PASSWORD}"
+        until /app/kestra flow validate /opt/kestra/homelab/flows --server http://kestra:8080 --user "$${KESTRA_BASIC_AUTH_USERNAME}:$${KESTRA_BASIC_AUTH_PASSWORD}"; do sleep 5; done
+        /app/kestra flow namespace update "$${KESTRA_FLOW_NAMESPACE}" /opt/kestra/homelab/flows --no-delete --server http://kestra:8080 --user "$${KESTRA_BASIC_AUTH_USERNAME}:$${KESTRA_BASIC_AUTH_PASSWORD}"
     environment:
       KESTRA_BASIC_AUTH_USERNAME: ${KESTRA_BASIC_AUTH_USERNAME}
       KESTRA_BASIC_AUTH_PASSWORD: ${KESTRA_BASIC_AUTH_PASSWORD}
+      KESTRA_FLOW_NAMESPACE: ${KESTRA_FLOW_NAMESPACE:-homelab.ops}
     volumes:
-      - ./flows:/opt/kestra/homelab/flows:ro
+      - /srv/docker/development/flows:/opt/kestra/homelab/flows:ro
     deploy:
       restart_policy:
         condition: on-failure
       placement:
         constraints:
-          - node.hostname == sentinel-1
+          - node.hostname == ${DEVELOPMENT_HOSTNAME}
 
 networks:
   homelab_proxy_swarm:
     external: true
-
-volumes:
-  kestra_postgres_data:
-    name: gitops_kestra_postgres_data
-  kestra_storage:
-    name: gitops_kestra_storage
-  kestra_tmp:
-    name: gitops_kestra_tmp

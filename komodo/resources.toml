@@ -53,6 +53,7 @@ repo = "fabricesemti80/home-dc-service-hosts"
 branch = "main"
 file_paths = ["docker-stacks/development/docker-compose.yml"]
 environment = """
+DEVELOPMENT_HOSTNAME = [[DEVELOPMENT_HOSTNAME]]
 KESTRA_HOSTNAME = [[KESTRA_HOSTNAME]]
 KESTRA_BASIC_AUTH_USERNAME = [[KESTRA_BASIC_AUTH_USERNAME]]
 KESTRA_BASIC_AUTH_PASSWORD = [[KESTRA_BASIC_AUTH_PASSWORD]]
