@@ -79,6 +79,16 @@
     recurse: true
   when: monitoring_stack_host | default(false)
 
+- name: Ensure Uptime Kuma data directory exists on monitoring host
+  ansible.builtin.file:
+    path: "{{ uptime_kuma_data_dir }}"
+    state: directory
+    owner: "{{ uptime_kuma_data_owner }}"
+    group: "{{ uptime_kuma_data_group }}"
+    mode: "0755"
+    recurse: true
+  when: monitoring_stack_host | default(false)
+
 - name: Check local swarm state
   ansible.builtin.command: docker info --format '{{ "{{.Swarm.LocalNodeState}}" }} {{ "{{.Swarm.ControlAvailable}}" }}'
   register: docker_swarm_state

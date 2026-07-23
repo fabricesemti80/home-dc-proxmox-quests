@@ -4,7 +4,7 @@ services:
     networks:
       - homelab_proxy_swarm
     volumes:
-      - uptime_kuma_data:/app/data
+      - /srv/docker/uptime-kuma/data:/app/data
     ports:
       - target: 3001
         published: 13001
@@ -62,9 +62,4 @@ services:
 
 networks:
   homelab_proxy_swarm:
-    external: true
-
-volumes:
-  uptime_kuma_data:
-    name: docker_apps_uptime_kuma_data
     external: true

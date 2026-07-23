@@ -5,3 +5,6 @@ docker_swarm_overlay_network: homelab_proxy_swarm
 pulse_data_dir: /srv/docker/pulse/data
 pulse_data_owner: "{{ ansible_user }}"
 pulse_data_group: "{{ ansible_user }}"
+uptime_kuma_data_dir: /srv/docker/uptime-kuma/data
+uptime_kuma_data_owner: root
+uptime_kuma_data_group: root
