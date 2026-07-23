@@ -28,9 +28,9 @@ TECHNITIUM_BACKGROUND_TOKEN was rejected by node "node0": invalid token.
 1. Open a Technitium DNS web console, for example `https://technitium-0.koala-dominant.ts.net`.
 2. Prefer a dedicated non-admin user if the permissions you need can be limited.
 3. Add that user to a group with the DNS permissions Companion needs.
-4. Go to `Administration -> Sessions`.
-5. Click `Create token`.
-6. Select the user.
+4. Log in as that user.
+5. Open the username menu in the top right.
+6. Click `Create API Token`.
 7. Name it `technitium-companion-background`.
 8. Copy the token immediately; Technitium shows it once.
 9. Put it in the real repo `.env`:
