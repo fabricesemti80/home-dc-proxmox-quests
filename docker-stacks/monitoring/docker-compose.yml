@@ -1,4 +1,33 @@
 services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    networks:
+      - homelab_proxy_swarm
+    volumes:
+      - uptime_kuma_data:/app/data
+    ports:
+      - target: 3001
+        published: 13001
+        protocol: tcp
+        mode: host
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == ${PULSE_HOSTNAME}
+      restart_policy:
+        condition: any
+    labels:
+      docktail.service.enable: "true"
+      docktail.service.direct: "false"
+      docktail.service.name: uptime-kuma
+      docktail.service.port: "3001"
+      docktail.service.service-port: "443"
+      docktail.service.protocol: http
+      homepage.group: Monitoring
+      homepage.name: Uptime Kuma
+      homepage.icon: uptime-kuma
+      homepage.href: https://uptime-kuma.koala-dominant.ts.net
+
   pulse:
     image: rcourtman/pulse:latest
     volumes:
@@ -33,4 +62,9 @@ services:
 
 networks:
   homelab_proxy_swarm:
+    external: true
+
+volumes:
+  uptime_kuma_data:
+    name: docker_apps_uptime_kuma_data
     external: true

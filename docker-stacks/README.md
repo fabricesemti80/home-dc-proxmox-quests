@@ -1,19 +1,19 @@
 # Docker stacks
 
-Portainer-managed Docker stacks.
+Komodo-managed Docker stacks.
 
 ## Layout
 
-Each compose file is a separate Portainer GitOps stack. Required variables live
+Each compose file is a separate Komodo stack. Required variables live
 in the repo root `.env` and are listed in `.env.example`.
 
 | Area | Services | Endpoint |
 |---|---|---|
-| `apps/docker-compose.yml` | Beszel, Uptime Kuma, Whoami, Beszel agent | Swarm; apps pinned to `sentinel-1`, agent global |
+| `apps/docker-compose.yml` | Beszel, Whoami, Beszel agent | Swarm; apps pinned to `sentinel-1`, agent global |
 | `dashboard/docker-compose.yml` | Homepage | Swarm; pinned to `sentinel-1` |
-| `gitops/docker-compose.yml` | Kestra | Swarm; pinned to `sentinel-1` |
+| `development/docker-compose.yml` | Kestra | Swarm; pinned to `sentinel-1` |
 | `networking/docker-compose.yml` | Docktail, Technitium primary/secondary | Swarm; Docktail global, DNS pinned per host |
-| `monitoring/docker-compose.yml` | Pulse | Swarm, constrained by `PULSE_HOSTNAME` |
+| `monitoring/docker-compose.yml` | Pulse, Uptime Kuma | Swarm, constrained by `PULSE_HOSTNAME` |
 
 Services attach to `homelab_proxy`; Swarm stacks require that network to be a swarm-scope overlay network before deployment.
 
@@ -24,7 +24,7 @@ configured in Beszel.
 Pulse setup notes live next to the stack in
 [`monitoring/README.md`](monitoring/README.md).
 
-Kestra setup lives in `gitops/docker-compose.yml`. It imports the
+Kestra setup lives in `development/docker-compose.yml`. It imports the
 `homelab.ops` flows on deploy:
 
 - `ordered_shutdown`: refuses to run while PBS backup tasks are active, checks
@@ -50,5 +50,5 @@ labels:
 
 ## Deployment
 
-Portainer GitOps pulls these compose files from this repo. Ansible only
-bootstraps Docker, Tailscale, Swarm, and Portainer.
+Komodo pulls these compose files from this repo. Ansible bootstraps Docker,
+Tailscale, Swarm, Portainer, and Komodo.

@@ -41,6 +41,33 @@ environment = """
 PULSE_HOSTNAME = [[PULSE_HOSTNAME]]
 """
 
+[[stack]]
+name = "homelab-development"
+tags = ["homelab", "development"]
+deploy = true
+
+[stack.config]
+swarm = "home-swarm"
+repo = "fabricesemti80/home-dc-service-hosts"
+branch = "main"
+file_paths = ["docker-stacks/development/docker-compose.yml"]
+environment = """
+KESTRA_HOSTNAME = [[KESTRA_HOSTNAME]]
+KESTRA_BASIC_AUTH_USERNAME = [[KESTRA_BASIC_AUTH_USERNAME]]
+KESTRA_BASIC_AUTH_PASSWORD = [[KESTRA_BASIC_AUTH_PASSWORD]]
+KESTRA_POSTGRES_PASSWORD = [[KESTRA_POSTGRES_PASSWORD]]
+KESTRA_SSH_PRIVATE_KEY_PATH = [[KESTRA_SSH_PRIVATE_KEY_PATH]]
+KESTRA_FLOW_GIT_URL = [[KESTRA_FLOW_GIT_URL]]
+KESTRA_FLOW_GIT_BRANCH = [[KESTRA_FLOW_GIT_BRANCH]]
+KESTRA_FLOW_GIT_PATH = [[KESTRA_FLOW_GIT_PATH]]
+KESTRA_FLOW_NAMESPACE = [[KESTRA_FLOW_NAMESPACE]]
+HOMELAB_PVE_HOSTS = [[HOMELAB_PVE_HOSTS]]
+HOMELAB_PVE_SHUTDOWN_ORDER = [[HOMELAB_PVE_SHUTDOWN_ORDER]]
+HOMELAB_PBS_HOST = [[HOMELAB_PBS_HOST]]
+HOMELAB_K8S_VMS = [[HOMELAB_K8S_VMS]]
+HOMELAB_SERVICE_GUESTS = [[HOMELAB_SERVICE_GUESTS]]
+"""
+
 [[resource_sync]]
 name = "home-dc-service-hosts"
 tags = ["homelab"]

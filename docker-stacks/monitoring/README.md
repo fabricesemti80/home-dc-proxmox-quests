@@ -1,5 +1,20 @@
 # Monitoring stack
 
+## Uptime Kuma
+
+Uptime Kuma is pinned to `PULSE_HOSTNAME`, currently managed by Ansible as
+`sentinel-0`.
+
+It uses the existing named Docker volume so the stack move does not change the
+container data path:
+
+```text
+docker_apps_uptime_kuma_data -> /app/data
+```
+
+Because Docker named volumes are node-local, moving Uptime Kuma from
+`sentinel-1` to `sentinel-0` requires copying that named volume data once.
+
 ## Pulse
 
 Pulse is pinned to `PULSE_HOSTNAME`, currently managed by Ansible as `sentinel-0`.
