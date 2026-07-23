@@ -1,0 +1,40 @@
+[[server]]
+name = "sentinel-0"
+tags = ["homelab", "swarm", "manager"]
+
+[server.config]
+address = "http://periphery:8120"
+enabled = true
+
+[[swarm]]
+name = "home-swarm"
+tags = ["homelab"]
+
+[swarm.config]
+servers = ["sentinel-0"]
+
+[[stack]]
+name = "networking"
+tags = ["homelab", "dns"]
+deploy = true
+
+[stack.config]
+swarm = "home-swarm"
+repo = "fabricesemti80/home-dc-service-hosts"
+branch = "main"
+file_paths = ["docker-stacks/networking/docker-compose.yml"]
+environment = """
+TAILSCALE_OAUTH_CLIENT_ID = [[TAILSCALE_OAUTH_CLIENT_ID]]
+TAILSCALE_OAUTH_CLIENT_SECRET = [[TAILSCALE_OAUTH_CLIENT_SECRET]]
+TECHNITIUM_ADMIN_PASSWORD = [[TECHNITIUM_ADMIN_PASSWORD]]
+TECHNITIUM_BACKGROUND_TOKEN = [[TECHNITIUM_BACKGROUND_TOKEN]]
+"""
+
+[[resource_sync]]
+name = "home-dc-service-hosts"
+tags = ["homelab"]
+
+[resource_sync.config]
+repo = "fabricesemti80/home-dc-service-hosts"
+branch = "main"
+resource_path = ["komodo/resources.toml"]

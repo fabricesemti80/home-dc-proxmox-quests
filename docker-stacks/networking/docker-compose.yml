@@ -126,6 +126,93 @@ services:
       homepage.icon: mdi-dns
       homepage.href: https://technitium-1.koala-dominant.ts.net
 
+  technitium-2:
+    image: docker.io/technitium/dns-server:latest
+    hostname: dns-server-2
+    networks:
+      - homelab_proxy_swarm
+    ports:
+      - target: 53
+        published: 53
+        protocol: tcp
+        mode: host
+      - target: 53
+        published: 53
+        protocol: udp
+        mode: host
+      - target: 53443
+        published: 53443
+        protocol: tcp
+        mode: host
+      - target: 5380
+        published: 5380
+        protocol: tcp
+        mode: host
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+    environment:
+      DNS_SERVER_DOMAIN: dns-server-2
+      DNS_SERVER_ADMIN_PASSWORD: ${TECHNITIUM_ADMIN_PASSWORD}
+      DNS_SERVER_WEB_SERVICE_LOCAL_ADDRESSES: 0.0.0.0
+      DNS_SERVER_WEB_SERVICE_HTTP_PORT: "5380"
+      DNS_SERVER_WEB_SERVICE_ENABLE_HTTPS: "false"
+    volumes:
+      - technitium_2_data:/etc/dns
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == sentinel-0
+      restart_policy:
+        condition: any
+    labels:
+      docktail.service.enable: "true"
+      docktail.service.direct: "false"
+      docktail.service.name: technitium-2
+      docktail.service.port: "5380"
+      docktail.service.service-port: "443"
+      docktail.service.protocol: http
+      homepage.group: Infrastructure
+      homepage.name: Technitium Tertiary
+      homepage.icon: mdi-dns
+      homepage.href: https://technitium-2.koala-dominant.ts.net
+
+  technitium-companion:
+    image: ghcr.io/fail-safe/technitium-dns-companion:latest
+    networks:
+      - homelab_proxy_swarm
+    environment:
+      TZ: Europe/London
+      TECHNITIUM_NODES: node0,node1,node2
+      TECHNITIUM_NODE0_BASE_URL: http://technitium-0:5380
+      TECHNITIUM_NODE1_BASE_URL: http://technitium-1:5380
+      TECHNITIUM_NODE2_BASE_URL: http://technitium-2:5380
+      TECHNITIUM_BACKGROUND_TOKEN: ${TECHNITIUM_BACKGROUND_TOKEN:-}
+    volumes:
+      - technitium_companion_data:/data
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == sentinel-0
+      restart_policy:
+        condition: any
+    labels:
+      docktail.service.enable: "true"
+      docktail.service.direct: "false"
+      docktail.service.name: technitium-companion
+      docktail.service.port: "3000"
+      docktail.service.service-port: "443"
+      docktail.service.protocol: http
+      homepage.group: Infrastructure
+      homepage.name: Technitium Companion
+      homepage.icon: mdi-dns
+      homepage.href: https://technitium-companion.koala-dominant.ts.net
+
 networks:
   homelab_proxy_swarm:
     external: true
@@ -137,3 +224,5 @@ volumes:
   technitium_1_data:
     name: docker_apps_technitium_data
     external: true
+  technitium_2_data:
+  technitium_companion_data:
