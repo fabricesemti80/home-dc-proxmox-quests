@@ -16,3 +16,27 @@ komodo_resource_sync_paths:
   - komodo/resources.toml
 komodo_run_resource_sync: true
 komodo_managed_server_name: "{{ inventory_hostname }}"
+komodo_env_variables:
+  - name: TAILSCALE_OAUTH_CLIENT_ID
+  - name: TAILSCALE_OAUTH_CLIENT_SECRET
+    secret: true
+  - name: TECHNITIUM_ADMIN_PASSWORD
+    secret: true
+  - name: TECHNITIUM_NODE0_TOKEN
+    secret: true
+  - name: TECHNITIUM_NODE1_TOKEN
+    secret: true
+  - name: TECHNITIUM_NODE2_TOKEN
+    secret: true
+  - name: KESTRA_HOSTNAME
+    required: true
+  - name: KESTRA_BASIC_AUTH_USERNAME
+    required: true
+  - name: KESTRA_BASIC_AUTH_PASSWORD
+    secret: true
+    required: true
+  - name: KESTRA_POSTGRES_PASSWORD
+    secret: true
+    required: true
+  - name: KESTRA_SSH_PRIVATE_KEY_PATH
+    required: true

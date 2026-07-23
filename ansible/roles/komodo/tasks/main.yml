@@ -129,6 +129,54 @@
   when: not ansible_check_mode
   no_log: true
 
+- name: Validate Komodo resource variables from environment
+  ansible.builtin.assert:
+    that:
+      - lookup('ansible.builtin.env', item.name) | length > 0
+    fail_msg: "{{ item.name }} is required for Komodo resource interpolation."
+  loop: "{{ komodo_env_variables }}"
+  when: item.required | default(false)
+  no_log: true
+
+- name: Create Komodo variables from environment
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ komodo_port }}/write/CreateVariable"
+    method: POST
+    body_format: json
+    body:
+      name: "{{ item.name }}"
+      value: "{{ lookup('ansible.builtin.env', item.name) }}"
+      description: "Ansible-managed value from .env."
+      is_secret: "{{ item.secret | default(false) }}"
+    headers:
+      X-Api-Key: "{{ lookup('ansible.builtin.env', 'KOMODO_API_KEY') }}"
+      X-Api-Secret: "{{ lookup('ansible.builtin.env', 'KOMODO_API_SECRET') }}"
+    status_code: 200
+  loop: "{{ komodo_env_variables }}"
+  when:
+    - not ansible_check_mode
+    - lookup('ansible.builtin.env', item.name) | length > 0
+    - item.name not in (komodo_variables.json | map(attribute='name') | list)
+  no_log: true
+
+- name: Update Komodo variables from environment
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ komodo_port }}/write/UpdateVariableValue"
+    method: POST
+    body_format: json
+    body:
+      name: "{{ item.name }}"
+      value: "{{ lookup('ansible.builtin.env', item.name) }}"
+    headers:
+      X-Api-Key: "{{ lookup('ansible.builtin.env', 'KOMODO_API_KEY') }}"
+      X-Api-Secret: "{{ lookup('ansible.builtin.env', 'KOMODO_API_SECRET') }}"
+    status_code: 200
+  loop: "{{ komodo_env_variables }}"
+  when:
+    - not ansible_check_mode
+    - lookup('ansible.builtin.env', item.name) | length > 0
+  no_log: true
+
 - name: Create Komodo Technitium hostname variables
   ansible.builtin.uri:
     url: "http://127.0.0.1:{{ komodo_port }}/write/CreateVariable"
