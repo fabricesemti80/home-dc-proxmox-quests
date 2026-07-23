@@ -16,16 +16,18 @@ Services:
 
 Technitium DNS Companion uses the Technitium DNS username and password for normal UI login.
 
-`TECHNITIUM_BACKGROUND_TOKEN` is only for Companion background checks. It must be a real Technitium DNS API token. A random secret will start the UI, but Companion will show:
+`TECHNITIUM_NODE0_TOKEN`, `TECHNITIUM_NODE1_TOKEN`, and `TECHNITIUM_NODE2_TOKEN` are used for Companion background checks. They must be real Technitium DNS API tokens from the matching node. A random secret, or a token from a different Technitium node, will start the UI, but Companion will show:
 
 ```text
 Background token validation failed
-TECHNITIUM_BACKGROUND_TOKEN was rejected by node "node0": invalid token.
+TECHNITIUM_*_TOKEN was rejected by node "node0": invalid token.
 ```
 
-## Getting the background token
+## Getting the background tokens
 
-1. Open a Technitium DNS web console, for example `https://technitium-0.koala-dominant.ts.net`.
+Repeat this once per Technitium node.
+
+1. Open the node's Technitium DNS web console, for example `https://technitium-0.koala-dominant.ts.net`.
 2. Prefer a dedicated non-admin user if the permissions you need can be limited.
 3. Add that user to a group with the DNS permissions Companion needs.
 4. Log in as that user.
@@ -36,20 +38,20 @@ TECHNITIUM_BACKGROUND_TOKEN was rejected by node "node0": invalid token.
 9. Put it in the real repo `.env`:
 
 ```dotenv
-TECHNITIUM_BACKGROUND_TOKEN="paste-token-here"
+TECHNITIUM_NODE0_TOKEN="token-from-technitium-0"
+TECHNITIUM_NODE1_TOKEN="token-from-technitium-1"
+TECHNITIUM_NODE2_TOKEN="token-from-technitium-2"
 ```
 
 10. Re-sync or redeploy `homelab-networking` in Komodo so the updated environment reaches the container.
 
-If one token is not valid for every DNS node, switch this stack to per-node tokens instead:
+The current stack uses per-node tokens:
 
 ```yaml
 TECHNITIUM_NODE0_TOKEN: ${TECHNITIUM_NODE0_TOKEN}
 TECHNITIUM_NODE1_TOKEN: ${TECHNITIUM_NODE1_TOKEN}
 TECHNITIUM_NODE2_TOKEN: ${TECHNITIUM_NODE2_TOKEN}
 ```
-
-The current stack uses the single global `TECHNITIUM_BACKGROUND_TOKEN`.
 
 ## Checks
 
@@ -73,5 +75,5 @@ https+insecure://localhost:3443
 ## Troubleshooting
 
 - 502 from `technitium-companion.koala-dominant.ts.net`: Companion is down, or Docktail/Tailscale Serve is not using `https+insecure://localhost:3443`.
-- `Background token validation failed`: replace `TECHNITIUM_BACKGROUND_TOKEN` with a real Technitium API token and redeploy the stack.
+- `Background token validation failed`: replace the rejected node's `TECHNITIUM_NODE*_TOKEN` with a token created on that same Technitium node, then redeploy the stack.
 - Docktail service missing or OAuth errors: check `TAILSCALE_OAUTH_CLIENT_ID` and `TAILSCALE_OAUTH_CLIENT_SECRET`, then redeploy `docktail`.
