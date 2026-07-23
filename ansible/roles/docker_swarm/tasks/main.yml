@@ -73,9 +73,10 @@
   ansible.builtin.file:
     path: "{{ pulse_data_dir }}"
     state: directory
-    owner: root
-    group: root
+    owner: "{{ pulse_data_owner }}"
+    group: "{{ pulse_data_group }}"
     mode: "0755"
+    recurse: true
   when: monitoring_stack_host | default(false)
 
 - name: Check local swarm state
